@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 )
 
-type Response struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
+type Response interface {
+	ToJson() []byte
 }
 
-func (r Response) ToJson() []byte {
+type ResponseData map[string]interface{}
+
+func (r ResponseData) ToJson() []byte {
 	bytes, err := json.Marshal(r)
 	if err != nil {
 		panic(err)

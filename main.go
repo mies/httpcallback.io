@@ -17,5 +17,5 @@ func main() {
 }
 
 func Status(response api.ResponseWriter, request *http.Request) {
-	response.Success(api.Response{Success: true, Message: "we are up & running!"})
+	response.Success(api.ResponseData{"message": "we are up & running!"})
 }
