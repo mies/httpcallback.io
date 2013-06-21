@@ -17,5 +17,11 @@ func main() {
 }
 
 func Status(response api.ResponseWriter, request *http.Request) {
-	response.Success(api.ResponseData{"message": "we are up & running!"})
+	response.SetHeader("Allow", "GET")
+
+	if request.Method == "GET" {
+		response.Success(api.ResponseData{"message": "we are up & running!"})
+	} else {
+		response.ErrMethodNotAllowed()
+	}
 }

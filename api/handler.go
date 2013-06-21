@@ -18,11 +18,21 @@ func (writer *HttpResponseWriter) Write(statusCode int, response Response) {
 type RequestHandlerFunc func(ResponseWriter, *http.Request)
 
 type ResponseWriter interface {
+	SetHeader(string, string)
 	Success(Response)
+	ErrMethodNotAllowed()
+}
+
+func (writer HttpResponseWriter) SetHeader(key string, value string) {
+	writer.Header().Set(key, value)
 }
 
 func (writer HttpResponseWriter) Success(response Response) {
 	writer.Write(http.StatusOK, response)
+}
+
+func (writer HttpResponseWriter) ErrMethodNotAllowed() {
+	writer.Write(http.StatusMethodNotAllowed, ResponseData{"message": "Method Not Allowed"})
 }
 
 func AddHandler(pattern string, handler RequestHandlerFunc) {
