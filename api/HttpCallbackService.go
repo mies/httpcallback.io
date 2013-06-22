@@ -10,9 +10,9 @@ type HttpCallbackService struct {
 	Callbacks *CallbackController
 }
 
-func NewService() *HttpCallbackService {
+func NewService(callbackCtlr *CallbackController) *HttpCallbackService {
 	return &HttpCallbackService{
 		StartTime: time.Now(),
-		Callbacks: NewCallbackController(),
+		Callbacks: callbackCtlr,
 	}
 }

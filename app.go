@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/pjvds/httpcallback.io/api"
+	"github.com/pjvds/httpcallback.io/data/mongo"
 	"github.com/pjvds/httpcallback.io/model"
 	"io/ioutil"
 	"net/http"
@@ -14,11 +15,12 @@ import (
 var (
 	Address = flag.String("address", "", "specifies the host address")
 	Port    = flag.Int("port", 80, "specifies the host port")
+	Mongo   = flag.String("mongo", "mongodb://website:Alien4LifeAndBeyond@dharma.mongohq.com:10039/httpcallback", "specifies mongo url")
 )
 
 func main() {
 	flag.Parse()
-	service := api.NewService()
+	service := api.NewService(mongo.NewCallbackRepository(Mongo))
 
 	address := fmt.Sprintf("%s:%v", *Address, *Port)
 	router := mux.NewRouter()

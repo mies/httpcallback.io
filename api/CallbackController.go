@@ -1,17 +1,20 @@
 package api
 
 import (
+	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/model"
 )
 
 type CallbackController struct {
-	callbacks []*model.Callback
+	callbacks data.CallbackRepository
 }
 
-func NewCallbackController() *CallbackController {
-	return &CallbackController{}
+func NewCallbackController(callbacks data.CallbackRepository) *CallbackController {
+	return &CallbackController{
+		callbacks: callbacks,
+	}
 }
 
 func (ctr *CallbackController) AddCallback(callback *model.Callback) {
-	ctr.callbacks = append(ctr.callbacks, callback)
+	ctr.callbacks.Add(callback)
 }

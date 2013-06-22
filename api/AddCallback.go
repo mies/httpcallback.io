@@ -4,7 +4,6 @@ import (
 	"github.com/nu7hatch/gouuid"
 	. "github.com/pjvds/httpcallback.io/model"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -33,7 +32,5 @@ func (ctr *CallbackController) NewCallback(r *http.Request, args *CallbackReques
 }
 
 func (ctr *CallbackController) ListCallbacks(r *http.Request) (*JsonResponse, error) {
-	num := len(ctr.callbacks)
-	print("callbacks: " + strconv.Itoa(num))
-	return JsonResult(ctr.callbacks)
+	return JsonResult(ctr.callbacks.List())
 }
