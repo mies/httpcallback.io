@@ -41,7 +41,7 @@ func main() {
 	usersController := api.NewUserController(usersRepository)
 	service := api.NewService(callbacksController, usersController)
 
-	address := fmt.Sprintf("%s:%v", Address, Port)
+	address := fmt.Sprintf("%s:%v", *Address, *Port)
 	router := mux.NewRouter()
 
 	siteRouter := router.Host(config.Host.Hostname).Subrouter()
