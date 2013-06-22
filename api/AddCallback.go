@@ -22,10 +22,10 @@ func NewCallbackController() *CallbackController {
 type Callback struct {
 	Id        string               `json:"id"`
 	CreatedAt time.Time            `json:"createAt"`
-	Request   *CallbackRequestArgs `json:"request"`
+	Request   *CallbackRequest `json:"request"`
 }
 
-type CallbackRequestArgs struct {
+type CallbackRequest struct {
 	When time.Time `json:"when"`
 	Url  string    `json:"url"`
 }
@@ -40,7 +40,7 @@ func (ctr *CallbackController) ListCallbacks(r *http.Request) (*JsonResponse, er
 	return JsonResult(ctr.callbacks)
 }
 
-func (ctr *CallbackController) NewCallback(r *http.Request, args *CallbackRequestArgs) (*JsonResponse, error) {
+func (ctr *CallbackController) NewCallback(r *http.Request, args *CallbackRequest) (*JsonResponse, error) {
 	id, err := uuid.NewV4()
 	if err != nil {
 		return nil, err

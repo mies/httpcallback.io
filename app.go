@@ -33,7 +33,7 @@ func main() {
 			panic(err)
 		}
 
-		var args api.CallbackRequestArgs
+		var args api.CallbackRequest
 		err = json.Unmarshal(data, &args)
 		if err != nil {
 			fmt.Println("ERROR:", err)
