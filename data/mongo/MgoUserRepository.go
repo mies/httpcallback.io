@@ -25,6 +25,9 @@ func (r *MgoUserRepository) List() ([]*model.User, error) {
 	query := r.database.C("Users").Find(nil)
 	var result []*model.User
 	err := query.All(&result)
+	if result == nil {
+		result = make([]*model.User, 0)
+	}
 
 	return result, err
 }

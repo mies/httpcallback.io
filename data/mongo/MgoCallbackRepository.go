@@ -25,6 +25,9 @@ func (r *MgoCallbackRepository) List() ([]*model.Callback, error) {
 	query := r.database.C("Callbacks").Find(nil)
 	var result []*model.Callback
 	err := query.All(&result)
+	if result == nil {
+		result = make([]*model.Callback, 0)
+	}
 
 	return result, err
 }
