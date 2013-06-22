@@ -35,14 +35,18 @@ func main() {
 
 	address := fmt.Sprintf("%s:%v", *Address, *Port)
 	router := mux.NewRouter()
-	router.Headers("Content-Type", "application/json")
-	router.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
-	router.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
-	router.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
+
+	siteRouter := router.Host("").Subrouter()
+	siteRouter.Handle("/", http.FileServer(http.Dir("./site")))
+
+	apiRouter := router.Host("api.{host:[a-z]+}").Subrouter()
+	apiRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
+	apiRouter.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
+	apiRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
 		result, err := service.Callbacks.ListCallbacks(req)
 		WriteResultOrError(response, result, err)
 	}).Methods("GET")
-	router.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
+	apiRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
 		data, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			panic(err)
