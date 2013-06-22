@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/nu7hatch/gouuid"
 	"net/http"
-	"net/url"
 	"time"
 )
 
@@ -16,21 +15,21 @@ func NewCallbackController() *CallbackController {
 
 type CallbackRequestArgs struct {
 	When time.Time `json:"when"`
-	Url  url.URL   `json:"url"`
+	Url  string    `json:"url"`
 }
 
 type CallbackRequestReply struct {
-	Id *uuid.UUID `json:"id"`
+	Id string `json:"id"`
 }
 
-func (ctr *CallbackController) PostCallback(r *http.Request, args *CallbackRequestArgs) (*JsonResponse, error) {
+func (ctr *CallbackController) NewCallback(r *http.Request, args *CallbackRequestArgs) (*JsonResponse, error) {
 	id, err := uuid.NewV4()
 	if err != nil {
 		return nil, err
 	}
 
 	reply := &CallbackRequestReply{
-		Id: id,
+		Id: id.String(),
 	}
 
 	return JsonResult(reply)
