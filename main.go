@@ -14,6 +14,7 @@ func main() {
 	router := mux.NewRouter()
 	router.Headers("Content-Type", "application/json")
 	router.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
+	//router.HandleFunc("/callbacks", HttpReponseWrapper(service.)).Methods("POST")
 
 	fmt.Println("Hosting at ", address)
 	if err := http.ListenAndServe(address, router); err != nil {
