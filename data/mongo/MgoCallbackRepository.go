@@ -6,25 +6,15 @@ import (
 )
 
 type MgoCallbackRepository struct {
-	session  *mgo.Session
+	session  *MgoSession
 	database *mgo.Database
 }
 
-func NewCallbackRepository(url string, database string) (*MgoCallbackRepository, error) {
-	session, err := mgo.Dial(url)
-	if err != nil {
-		return nil, err
-	}
-	err = session.Ping()
-	if err != nil {
-		return nil, err
-	}
-	db := session.DB(database)
-
+func NewCallbackRepository(session *MgoSession) *MgoCallbackRepository {
 	return &MgoCallbackRepository{
 		session:  session,
-		database: db,
-	}, nil
+		database: session.database,
+	}
 }
 
 func (r *MgoCallbackRepository) Add(callback *model.Callback) error {

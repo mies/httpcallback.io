@@ -21,10 +21,12 @@ var (
 
 func main() {
 	flag.Parse()
-	callbacksRepository, err := mongo.NewCallbackRepository(*DbUrl, *DbName)
+	mongoSession, err := mongo.Open(*DbUrl, *DbName)
 	if err != nil {
 		panic(err)
 	}
+
+	callbacksRepository := mongo.NewCallbackRepository(mongoSession)
 	callbacksController := api.NewCallbackController(callbacksRepository)
 	service := api.NewService(callbacksController)
 
