@@ -17,6 +17,10 @@ func main() {
 	router.Headers("Content-Type", "application/json")
 	router.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
 	router.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
+		result, err := service.Callbacks.ListCallbacks(req)
+		WriteResultOrError(response, result, err)
+	}).Methods("GET")
+	router.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
 		data, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			panic(err)
