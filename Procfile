@@ -1,1 +1,1 @@
-web: httpcallback.io -address "localhost" -port 80
+web: httpcallback.io -port $PORT
