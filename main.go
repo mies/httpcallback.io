@@ -21,7 +21,7 @@ func main() {
 	}
 }
 
-func HttpReponseWrapper(handler func(*http.Request) (api.HttpResponse, error)) http.HandlerFunc {
+func HttpReponseWrapper(handler func(*http.Request) (*api.JsonResponse, error)) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		w, err := handler(req)
 		if err != nil {

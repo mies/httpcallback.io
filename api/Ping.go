@@ -13,7 +13,7 @@ type HttpResponse interface {
 	WriteResponse(http.ResponseWriter)
 }
 
-func (s *HttpCallbackService) GetPing(req *http.Request) (HttpResponse, error) {
+func (s *HttpCallbackService) GetPing(req *http.Request) (*JsonResponse, error) {
 	return JsonResult(&PingResponse{
 		Message: "pong",
 	})
