@@ -11,8 +11,8 @@ type HttpResponseWriter struct {
 func (writer *HttpResponseWriter) Write(statusCode int, response Response) {
 	data := response.ToJson()
 	writer.Header().Set("Content-Type", "application/json")
-	writer.ResponseWriter.Write(data)
 	writer.WriteHeader(statusCode)
+	writer.ResponseWriter.Write(data)
 }
 
 func (writer HttpResponseWriter) SetHeader(key string, value string) {
