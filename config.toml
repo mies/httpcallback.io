@@ -1,7 +1,5 @@
 [Host]
 Hostname = "localhost"
-Address = ""
-Port = 8000
 
 [Mongo]
 ServerUrl = "mongodb://foo:bar@dharma.mongohq.com:10039/httpcallback"

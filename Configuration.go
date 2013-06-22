@@ -18,8 +18,6 @@ func OpenConfig(path string) (*Configuration, error) {
 
 type HostInformation struct {
 	Hostname string
-	Address  string
-	Port     int
 }
 
 type MongoInformation struct {

@@ -13,6 +13,8 @@ import (
 )
 
 var (
+	Address    = flag.String("address", "", "the address to host on")
+	Port       = flag.Int("port", 8000, "the port to host on")
 	ConfigPath = flag.String("config", "config.toml", "the path to the configuration file")
 )
 
@@ -39,7 +41,7 @@ func main() {
 	usersController := api.NewUserController(usersRepository)
 	service := api.NewService(callbacksController, usersController)
 
-	address := fmt.Sprintf("%s:%v", config.Host.Address, config.Host.Port)
+	address := fmt.Sprintf("%s:%v", Address, Port)
 	router := mux.NewRouter()
 
 	siteRouter := router.Host(config.Host.Hostname).Subrouter()
