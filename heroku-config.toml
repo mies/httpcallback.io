@@ -1,0 +1,6 @@
+[Host]
+Hostname = "httpcallback-io.herokuapp.com"
+
+[Mongo]
+ServerUrl = "mongodb://foo:bar@dharma.mongohq.com:10039/httpcallback"
+DatabaseName = "httpcallback"

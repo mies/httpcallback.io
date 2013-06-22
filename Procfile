@@ -1,1 +1,1 @@
-web: httpcallback.io -port $PORT
+web: httpcallback.io -port "$PORT" -config "heroku-config.toml"
