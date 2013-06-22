@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/pjvds/httpcallback.io/api"
@@ -9,10 +10,16 @@ import (
 	"net/http"
 )
 
+var (
+	Address = flag.String("address", "", "specifies the host address")
+	Port    = flag.Int("port", 80, "specifies the host port")
+)
+
 func main() {
+	flag.Parse()
 	service := api.NewService()
 
-	address := ":8000"
+	address := fmt.Sprintf("%s:%v", *Address, *Port)
 	router := mux.NewRouter()
 	router.Headers("Content-Type", "application/json")
 	router.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
