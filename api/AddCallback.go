@@ -32,5 +32,6 @@ func (ctr *CallbackController) NewCallback(r *http.Request, args *CallbackReques
 }
 
 func (ctr *CallbackController) ListCallbacks(r *http.Request) (*JsonResponse, error) {
-	return JsonResult(ctr.callbacks.List())
+	callbacks := ctr.callbacks.List()
+	return JsonResult(callbacks)
 }

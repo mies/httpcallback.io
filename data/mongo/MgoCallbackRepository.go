@@ -1,21 +1,22 @@
 package mongo
 
 import (
+	"github.com/pjvds/httpcallback.io/model"
 	"labix.org/v2/mgo"
 )
 
 type MgoCallbackRepository struct {
-	db mgo.Database
+	session *mgo.Session
 }
 
 func NewCallbackRepository(url string) (*MgoCallbackRepository, error) {
-	session, err := mgo.Dail(url)
+	session, err := mgo.Dial(url)
 	if err != nil {
 		return nil, err
 	}
 
 	return &MgoCallbackRepository{
-		db: session,
+		session: session,
 	}, nil
 }
 

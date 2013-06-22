@@ -20,7 +20,12 @@ var (
 
 func main() {
 	flag.Parse()
-	service := api.NewService(mongo.NewCallbackRepository(Mongo))
+	callbacksRepository, err := mongo.NewCallbackRepository(*Mongo)
+	if err != nil {
+		panic(err)
+	}
+	callbacksController := api.NewCallbackController(callbacksRepository)
+	service := api.NewService(callbacksController)
 
 	address := fmt.Sprintf("%s:%v", *Address, *Port)
 	router := mux.NewRouter()
