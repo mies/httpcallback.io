@@ -8,11 +8,15 @@ import (
 )
 
 type CallbackController struct {
-	callbacks []Callback
+	callbacks []*Callback
+}
+
+func (ctrl *CallbackController) AddCallback(callback *Callback) {
+	ctrl.callbacks = append(ctrl.callbacks, callback)
 }
 
 func NewCallbackController() *CallbackController {
-	return &CallbackController{callbacks: make([]Callback, 0)}
+	return &CallbackController{}
 }
 
 type Callback struct {
@@ -47,9 +51,7 @@ func (ctr *CallbackController) NewCallback(r *http.Request, args *CallbackReques
 		CreatedAt: time.Now(),
 		Request:   args,
 	}
-	ctr.callbacks = append(ctr.callbacks, callback)
-	print("added!")
-	print("callbacks: " + strconv.Itoa(len(ctr.callbacks)))
+	ctr.AddCallback(&callback)
 
 	reply := &CallbackRequestReply{
 		Id: callback.Id,
