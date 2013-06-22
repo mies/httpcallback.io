@@ -2,42 +2,14 @@ package api
 
 import (
 	"github.com/nu7hatch/gouuid"
+	. "github.com/pjvds/httpcallback.io/model"
 	"net/http"
 	"strconv"
 	"time"
 )
 
-type CallbackController struct {
-	callbacks []*Callback
-}
-
-func (ctrl *CallbackController) AddCallback(callback *Callback) {
-	ctrl.callbacks = append(ctrl.callbacks, callback)
-}
-
-func NewCallbackController() *CallbackController {
-	return &CallbackController{}
-}
-
-type Callback struct {
-	Id        string               `json:"id"`
-	CreatedAt time.Time            `json:"createAt"`
-	Request   *CallbackRequest `json:"request"`
-}
-
-type CallbackRequest struct {
-	When time.Time `json:"when"`
-	Url  string    `json:"url"`
-}
-
-type CallbackRequestReply struct {
+type NewCallbackReply struct {
 	Id string `json:"id"`
-}
-
-func (ctr *CallbackController) ListCallbacks(r *http.Request) (*JsonResponse, error) {
-	num := len(ctr.callbacks)
-	print("callbacks: " + strconv.Itoa(num))
-	return JsonResult(ctr.callbacks)
 }
 
 func (ctr *CallbackController) NewCallback(r *http.Request, args *CallbackRequest) (*JsonResponse, error) {
@@ -53,9 +25,15 @@ func (ctr *CallbackController) NewCallback(r *http.Request, args *CallbackReques
 	}
 	ctr.AddCallback(&callback)
 
-	reply := &CallbackRequestReply{
+	reply := &NewCallbackReply{
 		Id: callback.Id,
 	}
 
 	return JsonResult(reply)
+}
+
+func (ctr *CallbackController) ListCallbacks(r *http.Request) (*JsonResponse, error) {
+	num := len(ctr.callbacks)
+	print("callbacks: " + strconv.Itoa(num))
+	return JsonResult(ctr.callbacks)
 }

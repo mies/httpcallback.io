@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/pjvds/httpcallback.io/api"
+	"github.com/pjvds/httpcallback.io/model"
 	"io/ioutil"
 	"net/http"
 )
@@ -33,7 +34,7 @@ func main() {
 			panic(err)
 		}
 
-		var args api.CallbackRequest
+		var args model.CallbackRequest
 		err = json.Unmarshal(data, &args)
 		if err != nil {
 			fmt.Println("ERROR:", err)
