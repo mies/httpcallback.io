@@ -5,6 +5,6 @@ import (
 )
 
 type CallbackRepository interface {
-	List() []*model.Callback
-	Add(*model.Callback)
+	List() ([]*model.Callback, error)
+	Add(*model.Callback) error
 }

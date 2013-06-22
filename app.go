@@ -15,12 +15,13 @@ import (
 var (
 	Address = flag.String("address", "", "specifies the host address")
 	Port    = flag.Int("port", 80, "specifies the host port")
-	Mongo   = flag.String("mongo", "mongodb://website:Alien4LifeAndBeyond@dharma.mongohq.com:10039/httpcallback", "specifies mongo url")
+	DbUrl   = flag.String("db-url", "mongodb://foo:bar@dharma.mongohq.com:10039/httpcallback", "mongo url, including credentials, if needed.")
+	DbName  = flag.String("db-name", "httpcallback", "mongo database name")
 )
 
 func main() {
 	flag.Parse()
-	callbacksRepository, err := mongo.NewCallbackRepository(*Mongo)
+	callbacksRepository, err := mongo.NewCallbackRepository(*DbUrl, *DbName)
 	if err != nil {
 		panic(err)
 	}

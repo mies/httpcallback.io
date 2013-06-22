@@ -14,10 +14,10 @@ func NewMemoryCallbackRepository() *MemoryCallbackRepository {
 	}
 }
 
-func (r *MemoryCallbackRepository) Add(callback *model.Callback) {
-	r.data = append(r.data, callback)
+func (r *MemoryCallbackRepository) Add(callback *model.Callback) error {
+	r.data = append(r.data, callback), nil
 }
 
-func (r *MemoryCallbackRepository) List() []*model.Callback {
-	return r.data
+func (r *MemoryCallbackRepository) List() ([]*model.Callback, error) {
+	return r.data, nil
 }
