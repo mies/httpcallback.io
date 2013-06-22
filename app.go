@@ -13,18 +13,24 @@ import (
 )
 
 var (
-	Address = flag.String("address", "", "specifies the host address")
-	Port    = flag.Int("port", 80, "specifies the host port")
-	DbUrl   = flag.String("db-url", "mongodb://foo:bar@dharma.mongohq.com:10039/httpcallback", "mongo url, including credentials, if needed.")
-	DbName  = flag.String("db-name", "httpcallback", "mongo database name")
+	ConfigPath = flag.String("config", "config.toml", "the path to the configuration file")
 )
 
 func main() {
 	flag.Parse()
-	mongoSession, err := mongo.Open(*DbUrl, *DbName)
+	fmt.Printf("Starting with config %s\n", *ConfigPath)
+	config, err := OpenConfig(*ConfigPath)
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Printf("Connecting to mongo database %s... ", config.Mongo.DatabaseName)
+	mongoSession, err := mongo.Open(config.Mongo.ServerUrl, config.Mongo.DatabaseName)
+	if err != nil {
+		fmt.Println("failed!")
+		panic(err)
+	}
+	fmt.Println("succes!")
 
 	callbacksRepository := mongo.NewCallbackRepository(mongoSession)
 	callbacksController := api.NewCallbackController(callbacksRepository)
@@ -33,13 +39,13 @@ func main() {
 	usersController := api.NewUserController(usersRepository)
 	service := api.NewService(callbacksController, usersController)
 
-	address := fmt.Sprintf("%s:%v", *Address, *Port)
+	address := fmt.Sprintf("%s:%v", config.Host.Address, config.Host.Port)
 	router := mux.NewRouter()
 
-	siteRouter := router.Host("").Subrouter()
+	siteRouter := router.Host(config.Host.Hostname).Subrouter()
 	siteRouter.Handle("/", http.FileServer(http.Dir("./site")))
 
-	apiRouter := router.Host("api.{host:[a-z]+}").Subrouter()
+	apiRouter := router.Host("api." + config.Host.Hostname).Subrouter()
 	apiRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
 	apiRouter.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
 	apiRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
@@ -64,7 +70,7 @@ func main() {
 		WriteResultOrError(response, result, err)
 	}).Methods("POST")
 
-	fmt.Println("Hosting at ", address)
+	fmt.Printf("httpcallback.io now hosting at %s\n", address)
 	if err := http.ListenAndServe(address, router); err != nil {
 		fmt.Println("fatal: ", err)
 	}
