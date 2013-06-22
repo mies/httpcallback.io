@@ -28,12 +28,16 @@ func main() {
 
 	callbacksRepository := mongo.NewCallbackRepository(mongoSession)
 	callbacksController := api.NewCallbackController(callbacksRepository)
-	service := api.NewService(callbacksController)
+
+	usersRepository := mongo.NewUserRepository(mongoSession)
+	usersController := api.NewUserController(usersRepository)
+	service := api.NewService(callbacksController, usersController)
 
 	address := fmt.Sprintf("%s:%v", *Address, *Port)
 	router := mux.NewRouter()
 	router.Headers("Content-Type", "application/json")
 	router.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
+	router.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
 	router.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
 		result, err := service.Callbacks.ListCallbacks(req)
 		WriteResultOrError(response, result, err)
