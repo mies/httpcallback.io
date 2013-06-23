@@ -50,6 +50,23 @@ func main() {
 	apiRouter := router.Host("api." + config.Host.Hostname).Subrouter()
 	apiRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
 	apiRouter.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
+	apiRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
+		data, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			panic(err)
+		}
+
+		var requestArgs api.AddUserRequest
+		err = json.Unmarshal(data, &requestArgs)
+		if err != nil {
+			fmt.Println("ERROR:", err)
+			response.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		result, err := service.Users.AddUser(req, &requestArgs)
+		WriteResultOrError(response, result, err)
+	}).Methods("POST")
 	apiRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
 		result, err := service.Callbacks.ListCallbacks(req)
 		WriteResultOrError(response, result, err)
