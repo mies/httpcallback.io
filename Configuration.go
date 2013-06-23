@@ -5,8 +5,8 @@ import (
 )
 
 type Configuration struct {
-	Host  HostInformation
-	Mongo MongoInformation
+	Host  *HostInformation
+	Mongo *MongoInformation
 }
 
 func OpenConfig(path string) (*Configuration, error) {
@@ -21,6 +21,7 @@ type HostInformation struct {
 }
 
 type MongoInformation struct {
+	UseMongo     bool
 	ServerUrl    string
 	DatabaseName string
 }
