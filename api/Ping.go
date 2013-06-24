@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -22,6 +23,7 @@ func (s *HttpCallbackService) GetPing(req *http.Request) (*JsonResponse, error) 
 func JsonResult(result interface{}) (*JsonResponse, error) {
 	data, err := json.Marshal(result)
 	if err != nil {
+		fmt.Println("Unable to marshal object to json:", err)
 		return nil, err
 	} else {
 		return &JsonResponse{

@@ -66,15 +66,11 @@ func main() {
 	apiRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
 	apiRouter.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
 	apiRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
-		data, err := ioutil.ReadAll(req.Body)
-		if err != nil {
-			panic(err)
-		}
-
+		decoder := json.NewDecoder(req.Body)
 		var requestArgs api.AddUserRequest
-		err = json.Unmarshal(data, &requestArgs)
+		err = decoder.Decode(&requestArgs)
 		if err != nil {
-			fmt.Println("ERROR:", err)
+			fmt.Println("Error decoding body json to AddUserRequest: ", err)
 			response.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -95,7 +91,7 @@ func main() {
 		var args model.CallbackRequest
 		err = json.Unmarshal(data, &args)
 		if err != nil {
-			fmt.Println("ERROR:", err)
+			fmt.Println("Error decoding body json to CallbackRequest: ", err)
 			response.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -112,7 +108,7 @@ func main() {
 
 func WriteResultOrError(w http.ResponseWriter, result api.HttpResponse, err error) {
 	if err != nil {
-		fmt.Println("ERROR:", err)
+		fmt.Println("Controller finished with error:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		result.WriteResponse(w)

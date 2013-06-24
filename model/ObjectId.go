@@ -4,8 +4,11 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
-type ObjectId bson.ObjectId
+type ObjectId string
 
 func NewObjectId() ObjectId {
-	return ObjectId(bson.NewObjectId())
+	id := bson.NewObjectId()
+	s := id.String()
+
+	return ObjectId(s)
 }

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/model"
 	"github.com/pjvds/httpcallback.io/security"
@@ -41,6 +42,7 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 	}
 
 	if err := ctr.users.Add(newUser); err != nil {
+		fmt.Println("Unable to add new user. Error from repository:,", err)
 		return nil, err
 	}
 
