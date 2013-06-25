@@ -65,30 +65,46 @@ func (s *ApiIntegrationTestSuite) TestPing(c *C) {
 	c.Assert(doc["message"], Equals, "pong")
 }
 
-func (s *ApiIntegrationTestSuite) TestPostNewUser(c *C) {
-	// user := Document{
-	// 	"username": "pjvds",
-	// 	"password": "foobar",
-	// 	"email":    "pj@born2code.net:",
-	// }
-	//data := user.ToJson()
-	//buf := bytes.NewBuffer(data)
-
-	//_, err := http.Post("http://api.localhost:8000/users", "application/json", buf)
-	b := bytes.NewBufferString("{ \"username\": \"pjvds\", \"password\": \"foobar\", \"email\": \"pj@born2code.net\" }")
-	_, err := http.Post("http://api.localhost:8000/users", "application/json", b)
-	if err != nil {
-		c.Log("Foo")
-		c.Log(err)
+func (s *ApiIntegrationTestSuite) TestPostNewUserResponse(c *C) {
+	user := Document{
+		"username": "pjvds",
+		"password": "foobar",
+		"email":    "pj@born2code.net:",
 	}
+	data := user.ToJson()
+	buf := bytes.NewBuffer(data)
 
-	// c.Assert(err, IsNil)
-	// c.Assert(response.StatusCode, Equals, http.StatusOK)
+	response, err := http.Post("http://api.localhost:8000/users", "application/json", buf)
 
-	// doc, err := GetBodyAsDocument(c, response)
+	c.Assert(err, IsNil)
+	c.Assert(response.StatusCode, Equals, http.StatusOK)
 
-	// c.Assert(err, IsNil)
-	// c.Assert(doc["username"], Equals, user["username"])
+	doc, err := GetBodyAsDocument(c, response)
+
+	c.Assert(err, IsNil)
+	c.Assert(doc["username"], Equals, user["username"])
+}
+
+func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
+	user := Document{
+		"username": "pjvds",
+		"password": "foobar",
+		"email":    "pj@born2code.net:",
+	}
+	data := user.ToJson()
+	buf := bytes.NewBuffer(data)
+
+	response, err := http.Post("http://api.localhost:8000/users", "application/json", buf)
+
+	c.Assert(err, IsNil)
+	c.Assert(response.StatusCode, Equals, http.StatusOK)
+
+	creationReponse, err := GetBodyAsDocument(c, response)
+
+	response, err = http.Get("http://api.localhost:8000/users")
+
+	usersResponse, err := GetBodyAsDocument(c, response)
+	c.Assert(usersResponse["Users"].(map[string]interface{})["Id"], Equals, creationReponse["Id"])
 }
 
 func GetBodyAsDocument(c *C, response *http.Response) (Document, error) {

@@ -16,19 +16,24 @@ func HashPassword(username string, password string, creationDate time.Time) stri
 	return fmt.Sprintf(`"%x"`, result)
 }
 
-type AuthenticationToken string
+type AuthenticationToken struct {
+	token uuid.UUID
+}
 
 func NewAuthToken() AuthenticationToken {
-	token, err := uuid.NewV4()
+	Log.Debug("Generating new AuthenticationToken")
+	uuid, err := uuid.NewV4()
 	if err != nil {
-		panic(err)
+		Log.Fatalf("Error while generating new uuid V4: %s", err.Error())
 	}
 
-	return AuthenticationToken(token.String())
+	return AuthenticationToken{
+		token: *uuid,
+	}
 }
 
 func (token AuthenticationToken) String() string {
-	return fmt.Sprintf(`"%x"`, string(token.String()))
+	return token.token.String()
 }
 
 // func (token AuthenticationToken) MarshalJSON() ([]byte, error) {

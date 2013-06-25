@@ -66,16 +66,22 @@ func main() {
 	apiRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
 	apiRouter.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
 	apiRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
+		Log.Info("[%v] %v\n", req.Method, req.URL)
+
 		decoder := json.NewDecoder(req.Body)
 		var requestArgs api.AddUserRequest
+		Log.Debug("Decoding json into request AddUserRequest object.")
+
 		err = decoder.Decode(&requestArgs)
 		if err != nil {
-			fmt.Println("Error decoding body json to AddUserRequest: ", err)
+			Log.Error("Error decoding body json to AddUserRequest: %s", err.Error())
 			response.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
+		Log.Debug("Handing request to UserController")
 		result, err := service.Users.AddUser(req, &requestArgs)
+
 		WriteResultOrError(response, result, err)
 	}).Methods("POST")
 	apiRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
@@ -117,6 +123,7 @@ func WriteResultOrError(w http.ResponseWriter, result api.HttpResponse, err erro
 
 func HttpReponseWrapper(handler func(*http.Request) (*api.JsonResponse, error)) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
+		fmt.Printf("[%v] %v\n", req.Method, req.URL)
 		result, err := handler(req)
 		WriteResultOrError(res, result, err)
 	}

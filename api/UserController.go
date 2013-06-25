@@ -26,30 +26,34 @@ type AddUserRequest struct {
 }
 
 type AddUserResponse struct {
-	UserId    model.ObjectId `json:"userId"`
-	Username  string         `json:"username"`
-	AuthToken string         `json:"authToken"`
+	UserId    model.ObjectId               `json:"userId"`
+	Username  string                       `json:"username"`
+	AuthToken security.AuthenticationToken `json:"authToken"`
 }
 
 func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) (*JsonResponse, error) {
+	Log.Info("Handling AddUser request with username: %s", args.Username)
+
 	creationDate := time.Now()
-	newUser := &model.User{
+
+	newUser := model.User{
 		Id:           model.NewObjectId(),
 		CreatedAt:    creationDate,
 		Username:     args.Username,
 		PasswordHash: security.HashPassword(args.Username, args.Password, creationDate),
-		AuthToken:    security.NewAuthToken(),
+		//AuthToken:    security.NewAuthToken(),
 	}
+	Log.Debug("New user model created: %+v", &newUser)
 
-	if err := ctr.users.Add(newUser); err != nil {
+	if err := ctr.users.Add(&newUser); err != nil {
 		fmt.Println("Unable to add new user. Error from repository:,", err)
 		return nil, err
 	}
 
-	return JsonResult(&AddUserResponse{
-		UserId:    newUser.Id,
-		Username:  newUser.Username,
-		AuthToken: newUser.AuthToken.String(),
+	return JsonResult(AddUserResponse{
+		UserId:   newUser.Id,
+		Username: newUser.Username,
+		//AuthToken: newUser.AuthToken.String(),
 	})
 }
 
@@ -59,5 +63,7 @@ func (ctr *UserController) ListUsers(request *http.Request) (*JsonResponse, erro
 		return nil, err
 	}
 
-	return JsonResult(users)
+	return JsonResult(&struct {
+		Users []*model.User `json:"users"`
+	}{Users: users})
 }

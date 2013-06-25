@@ -23,7 +23,7 @@ func (s *HttpCallbackService) GetPing(req *http.Request) (*JsonResponse, error) 
 func JsonResult(result interface{}) (*JsonResponse, error) {
 	data, err := json.Marshal(result)
 	if err != nil {
-		fmt.Println("Unable to marshal object to json:", err)
+		fmt.Printf("Unable to marshal object (%+v) to json: %s", result, err.Error())
 		return nil, err
 	} else {
 		return &JsonResponse{
