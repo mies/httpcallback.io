@@ -14,7 +14,7 @@ type HttpResponse interface {
 	WriteResponse(http.ResponseWriter)
 }
 
-func (s *HttpCallbackService) GetPing(req *http.Request) (*JsonResponse, error) {
+func (s *HttpCallbackService) GetPing(req *http.Request) (HttpResponse, error) {
 	return JsonResult(&PingResponse{
 		Message: "pong",
 	})
@@ -41,10 +41,13 @@ type HttpResult struct {
 	StatusText string
 }
 
+func (h *HttpResult) WriteResponse(response http.ResponseWriter) {
 	response.WriteHeader(h.StatusCode)
+	response.Write([]byte(h.StatusText))
 }
 
 func NewHttpResult(statusCode int, statusText string) *HttpResult {
+	return &HttpResult{
 		StatusCode: statusCode,
 		StatusText: statusText,
 	}

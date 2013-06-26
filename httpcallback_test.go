@@ -111,6 +111,12 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
 	c.Assert(usersResponse["users"].(map[string]interface{})["Id"], Equals, creationReponse["Id"])
 }
 
+func (s *ApiIntegrationTestSuite) TestGetUserReturnsStatusNotFound(c *C) {
+	response, err := http.Get("http://api.localhost:8000/user/123")
+	c.Assert(err, IsNil)
+	c.Assert(response.StatusCode, Equals, http.StatusNotFound)
+}
+
 func GetBodyAsDocument(c *C, response *http.Response) (Document, error) {
 	var document Document
 	data, err := ioutil.ReadAll(response.Body)

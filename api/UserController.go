@@ -31,7 +31,7 @@ type AddUserResponse struct {
 	AuthToken security.AuthenticationToken `json:"authToken"`
 }
 
-func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) (*JsonResponse, error) {
+func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) (HttpResponse, error) {
 	Log.Info("Handling AddUser request for new user with username: %s", args.Username)
 
 	creationDate := time.Now()
@@ -56,9 +56,15 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 	})
 }
 
-// func (ctr *UserController) GetUser(request *http.Request) (*JsonResponse, error) {
-// 	userId := request.URL.Query()["id"]
+func (ctr *UserController) GetUser(request *http.Request) (HttpResponse, error) {
+	userIdInput := "foo"
+	userId, err := model.ParseObjectId(userIdInput)
+	if err != nil {
+		return NewHttpResult(http.StatusNotFound, "no user found with id "+userIdInput), nil
+	}
 
-// 	user := ctr.users.Get(userId)
-// 	return JsonResult()
-// }
+	//user := ctr.users.Get(userId)
+	return JsonResult(struct {
+		Id model.ObjectId `json:"id"`
+	}{Id: userId})
+}

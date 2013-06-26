@@ -64,6 +64,7 @@ func main() {
 
 	apiRouter := router.Host("api." + config.Host.Hostname).Subrouter()
 	apiRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
+	apiRouter.HandleFunc("/user/:id", HttpReponseWrapper(service.Users.GetUser)).Methods("GET")
 	//apiRouter.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
 	apiRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		Log.Info("[%v] %v\n", req.Method, req.URL)
@@ -121,7 +122,7 @@ func WriteResultOrError(w http.ResponseWriter, result api.HttpResponse, err erro
 	}
 }
 
-func HttpReponseWrapper(handler func(*http.Request) (*api.JsonResponse, error)) http.HandlerFunc {
+func HttpReponseWrapper(handler func(*http.Request) (api.HttpResponse, error)) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		fmt.Printf("[%v] %v\n", req.Method, req.URL)
 		result, err := handler(req)
