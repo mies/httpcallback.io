@@ -66,7 +66,23 @@ func main() {
 	apiGetRouter := apiRouter.Methods("GET").Subrouter()
 
 	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing))
-	apiGetRouter.HandleFunc("/user/:id", HttpReponseWrapper(service.Users.GetUser))
+	apiGetRouter.HandleFunc("/user/:id", func(response http.ResponseWriter, req *http.Request) {
+		Log.Info("[%v] %v\n", req.Method, req.URL)
+		var result api.HttpResponse
+		var err error
+
+		userId, ok := mux.Vars(req)["id"]
+		if !ok {
+			result = api.NewHttpStatusCodeResult(http.StatusNotFound)
+		} else {
+			requestArgs := &api.GetUserRequestArgs{
+				UserId: userId,
+			}
+
+			result, err = service.Users.GetUser(req, requestArgs)
+		}
+		WriteResultOrError(response, result, err)
+	})
 	apiPostRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		Log.Info("[%v] %v\n", req.Method, req.URL)
 

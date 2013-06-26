@@ -36,20 +36,17 @@ type JsonResponse struct {
 	Data []byte
 }
 
-type HttpResult struct {
+type HttpStatusCodeResult struct {
 	StatusCode int
-	StatusText string
 }
 
-func (h *HttpResult) WriteResponse(response http.ResponseWriter) {
+func (h *HttpStatusCodeResult) WriteResponse(response http.ResponseWriter) {
 	response.WriteHeader(h.StatusCode)
-	response.Write([]byte(h.StatusText))
 }
 
-func NewHttpResult(statusCode int, statusText string) *HttpResult {
-	return &HttpResult{
+func NewHttpStatusCodeResult(statusCode int) *HttpStatusCodeResult {
+	return &HttpStatusCodeResult{
 		StatusCode: statusCode,
-		StatusText: statusText,
 	}
 }
 

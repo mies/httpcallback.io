@@ -56,11 +56,14 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 	})
 }
 
-func (ctr *UserController) GetUser(request *http.Request) (HttpResponse, error) {
-	userIdInput := "foo"
-	userId, err := model.ParseObjectId(userIdInput)
+type GetUserRequestArgs struct {
+	UserId string
+}
+
+func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequestArgs) (HttpResponse, error) {
+	userId, err := model.ParseObjectId(args.UserId)
 	if err != nil {
-		return NewHttpResult(http.StatusNotFound, "user not found"), nil
+		return NewHttpStatusCodeResult(http.StatusNotFound), nil
 	}
 
 	//user := ctr.users.Get(userId)
