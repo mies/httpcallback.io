@@ -60,7 +60,7 @@ func (ctr *UserController) GetUser(request *http.Request) (HttpResponse, error) 
 	userIdInput := "foo"
 	userId, err := model.ParseObjectId(userIdInput)
 	if err != nil {
-		return NewHttpResult(http.StatusNotFound, "no user found with id "+userIdInput), nil
+		return NewHttpResult(http.StatusNotFound, "user not found"), nil
 	}
 
 	//user := ctr.users.Get(userId)
