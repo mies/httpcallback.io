@@ -62,10 +62,12 @@ func main() {
 	siteRouter.Handle("/", http.FileServer(http.Dir("./site")))
 
 	apiRouter := router.Host("api." + config.Host.Hostname).Subrouter()
-	apiRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
-	apiRouter.HandleFunc("/user/:id", HttpReponseWrapper(service.Users.GetUser)).Methods("GET")
-	//apiRouter.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
-	apiRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
+	apiPostRouter := apiRouter.Methods("POST").Subrouter()
+	apiGetRouter := apiRouter.Methods("GET").Subrouter()
+
+	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing))
+	apiGetRouter.HandleFunc("/user/:id", HttpReponseWrapper(service.Users.GetUser))
+	apiPostRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		Log.Info("[%v] %v\n", req.Method, req.URL)
 
 		decoder := json.NewDecoder(req.Body)
@@ -79,16 +81,15 @@ func main() {
 			return
 		}
 
-		Log.Debug("Handing request to UserController")
 		result, err := service.Users.AddUser(req, &requestArgs)
-
 		WriteResultOrError(response, result, err)
-	}).Methods("POST")
-	apiRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
+	})
+
+	apiGetRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
 		result, err := service.Callbacks.ListCallbacks(req)
 		WriteResultOrError(response, result, err)
-	}).Methods("GET")
-	apiRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
+	})
+	apiPostRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
 		data, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			panic(err)
@@ -104,7 +105,7 @@ func main() {
 
 		result, err := service.Callbacks.NewCallback(req, &args)
 		WriteResultOrError(response, result, err)
-	}).Methods("POST")
+	})
 
 	Log.Info("httpcallback.io now hosting at %s\n", address)
 	if err := http.ListenAndServe(address, router); err != nil {
