@@ -102,9 +102,13 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
 	creationReponse, err := GetBodyAsDocument(c, response)
 
 	response, err = http.Get("http://api.localhost:8000/users")
+	c.Assert(err, IsNil)
+	c.Assert(response.StatusCode, Equals, http.StatusOK)
 
 	usersResponse, err := GetBodyAsDocument(c, response)
-	c.Assert(usersResponse["Users"].(map[string]interface{})["Id"], Equals, creationReponse["Id"])
+
+	c.Assert(err, IsNil)
+	c.Assert(usersResponse["users"].(map[string]interface{})["Id"], Equals, creationReponse["Id"])
 }
 
 func GetBodyAsDocument(c *C, response *http.Response) (Document, error) {

@@ -32,7 +32,7 @@ type AddUserResponse struct {
 }
 
 func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) (*JsonResponse, error) {
-	Log.Info("Handling AddUser request with username: %s", args.Username)
+	Log.Info("Handling AddUser request for new user with username: %s", args.Username)
 
 	creationDate := time.Now()
 
@@ -41,9 +41,8 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 		CreatedAt:    creationDate,
 		Username:     args.Username,
 		PasswordHash: security.HashPassword(args.Username, args.Password, creationDate),
-		//AuthToken:    security.NewAuthToken(),
+		AuthToken:    security.NewAuthToken(),
 	}
-	Log.Debug("New user model created: %+v", &newUser)
 
 	if err := ctr.users.Add(&newUser); err != nil {
 		fmt.Println("Unable to add new user. Error from repository:,", err)
@@ -51,19 +50,15 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 	}
 
 	return JsonResult(AddUserResponse{
-		UserId:   newUser.Id,
-		Username: newUser.Username,
-		//AuthToken: newUser.AuthToken.String(),
+		UserId:    newUser.Id,
+		Username:  newUser.Username,
+		AuthToken: newUser.AuthToken,
 	})
 }
 
-func (ctr *UserController) ListUsers(request *http.Request) (*JsonResponse, error) {
-	users, err := ctr.users.List()
-	if err != nil {
-		return nil, err
-	}
+// func (ctr *UserController) GetUser(request *http.Request) (*JsonResponse, error) {
+// 	userId := request.URL.Query()["id"]
 
-	return JsonResult(&struct {
-		Users []*model.User `json:"users"`
-	}{Users: users})
-}
+// 	user := ctr.users.Get(userId)
+// 	return JsonResult()
+// }

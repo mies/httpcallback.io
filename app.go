@@ -64,7 +64,7 @@ func main() {
 
 	apiRouter := router.Host("api." + config.Host.Hostname).Subrouter()
 	apiRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing)).Methods("GET")
-	apiRouter.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
+	//apiRouter.HandleFunc("/users", HttpReponseWrapper(service.Users.ListUsers)).Methods("GET")
 	apiRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		Log.Info("[%v] %v\n", req.Method, req.URL)
 
