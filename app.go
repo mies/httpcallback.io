@@ -22,25 +22,25 @@ var (
 
 func createRepositoryFactory(config *Configuration) (data.RepositoryFactory, error) {
 	if config.Mongo.UseMongo {
-		fmt.Println("Runnig with mongo data store")
-		fmt.Printf("Connecting to mongo database %s... ", config.Mongo.DatabaseName)
+		Log.Debug("Running with mongo data store")
+		Log.Debug("Connecting to mongo database %s", config.Mongo.DatabaseName)
 		mongoSession, err := mongo.Open(config.Mongo.ServerUrl, config.Mongo.DatabaseName)
 		if err != nil {
-			fmt.Println("failed!")
+			Log.Error("Unable to connect to mongo:", err)
 			return nil, err
 		}
-		fmt.Println("succes!")
+		Log.Debug("Connected succesfully")
 		return mongo.NewMgoRepositoryFactory(mongoSession), nil
 
 	} else {
-		fmt.Println("Runnig with inmemory data store")
+		Log.Debug("Runnig with inmemory data store")
 		return memory.NewMemRepositoryFactory(), nil
 	}
 }
 
 func main() {
 	flag.Parse()
-	fmt.Printf("Starting with config %s\n", *ConfigPath)
+	Log.Info("Starting with config %s\n", *ConfigPath)
 	config, err := OpenConfig(*ConfigPath)
 	if err != nil {
 		panic(err)
@@ -48,8 +48,7 @@ func main() {
 
 	repositoryFactory, err := createRepositoryFactory(config)
 	if err != nil {
-		fmt.Println("[FATAL]" + err.Error())
-		return
+		Log.Fatal("[FATAL] Could not create repository factory: " + err.Error())
 	}
 
 	callbacksController := api.NewCallbackController(repositoryFactory.CreateCallbackRepository())
@@ -107,15 +106,15 @@ func main() {
 		WriteResultOrError(response, result, err)
 	}).Methods("POST")
 
-	fmt.Printf("httpcallback.io now hosting at %s\n", address)
+	Log.Info("httpcallback.io now hosting at %s\n", address)
 	if err := http.ListenAndServe(address, router); err != nil {
-		fmt.Println("fatal: ", err)
+		Log.Fatal(err)
 	}
 }
 
 func WriteResultOrError(w http.ResponseWriter, result api.HttpResponse, err error) {
 	if err != nil {
-		fmt.Println("Controller finished with error:", err)
+		Log.Debug("Controller finished with error: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		result.WriteResponse(w)
