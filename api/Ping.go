@@ -36,6 +36,20 @@ type JsonResponse struct {
 	Data []byte
 }
 
+type HttpResult struct {
+	StatusCode int
+	StatusText string
+}
+
+	response.WriteHeader(h.StatusCode)
+}
+
+func NewHttpResult(statusCode int, statusText string) *HttpResult {
+		StatusCode: statusCode,
+		StatusText: statusText,
+	}
+}
+
 func (j *JsonResponse) WriteResponse(response http.ResponseWriter) {
 	response.Header().Set("Content-Type", "application/json")
 	response.Write(j.Data)
