@@ -26,7 +26,7 @@ type AddUserRequest struct {
 }
 
 type AddUserResponse struct {
-	UserId    model.ObjectId               `json:"userId"`
+	Id        model.ObjectId               `json:"id"`
 	Username  string                       `json:"username"`
 	AuthToken security.AuthenticationToken `json:"authToken"`
 }
@@ -50,7 +50,7 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 	}
 
 	return JsonResult(AddUserResponse{
-		UserId:    newUser.Id,
+		Id:        newUser.Id,
 		Username:  newUser.Username,
 		AuthToken: newUser.AuthToken,
 	})
@@ -63,11 +63,25 @@ type GetUserRequestArgs struct {
 func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequestArgs) (HttpResponse, error) {
 	userId, err := model.ParseObjectId(args.UserId)
 	if err != nil {
+		fmt.Errorf("Invalid user id '%s': %s\nWill return 404 to user.", args.UserId, err.Error())
 		return NewHttpStatusCodeResult(http.StatusNotFound), nil
 	}
 
-	//user := ctr.users.Get(userId)
+	user, err := ctr.users.Get(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		Log.Debug("No user found with id '%s', returning 404 not found.", args.UserId)
+		return NewHttpStatusCodeResult(http.StatusNotFound), nil
+	}
+
 	return JsonResult(struct {
-		Id model.ObjectId `json:"id"`
-	}{Id: userId})
+		Id        model.ObjectId `json:"id"`
+		Username  string         `json:"username"`
+		CreatedAt time.Time      `json:"createdAt"`
+	}{Id: user.Id,
+		Username:  user.Username,
+		CreatedAt: user.CreatedAt})
 }

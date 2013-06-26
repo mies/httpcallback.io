@@ -2,6 +2,7 @@ package tests
 
 import (
 	"bytes"
+	"fmt"
 	. "launchpad.net/gocheck"
 	"net/http"
 	"os"
@@ -67,6 +68,8 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserResponse(c *C) {
 	doc, err := GetBodyAsDocument(response)
 
 	c.Assert(err, IsNil)
+	c.Assert(doc["id"], NotNil)
+	c.Assert(len(doc["id"].(string)), Equals, 24)
 	c.Assert(doc["username"], Equals, user["username"])
 }
 
@@ -84,21 +87,19 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusOK)
 
-	creationReponse, err := GetBodyAsDocument(response)
-
-	response, err = http.Get("http://api.localhost:8000/users")
+	creationReponse, _ := GetBodyAsDocument(response)
+	response, err = http.Get(fmt.Sprintf("http://api.localhost:8000/user/%s", creationReponse["id"]))
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusOK)
 
 	usersResponse, err := GetBodyAsDocument(response)
 
 	c.Assert(err, IsNil)
-	c.Assert(usersResponse["users"].(map[string]interface{})["Id"], Equals, creationReponse["Id"])
+	c.Assert(usersResponse["id"], Equals, creationReponse["id"])
 }
 
 func (s *ApiIntegrationTestSuite) TestGetUserReturnsStatusNotFound(c *C) {
 	response, err := http.Get("http://api.localhost:8000/user/123")
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusNotFound)
-	c.Assert(response.Status, Equals, "user not found")
 }

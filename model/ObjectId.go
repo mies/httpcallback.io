@@ -7,11 +7,12 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
-type ObjectId bson.ObjectId
+type ObjectId string
 
 func NewObjectId() ObjectId {
 	id := bson.NewObjectId()
-	s := id.String()
+	s := id.Hex()
+	Log.Debug("New ObjectId generated: %s", s)
 
 	return ObjectId(s)
 }
@@ -31,6 +32,6 @@ func ParseObjectId(value string) (ObjectId, error) {
 		return id, errors.New(fmt.Sprintf("Invalid object id. Not a valid hexidecimal string: %s", err.Error()))
 	}
 
-	id = ObjectId(bson.ObjectIdHex(value))
+	id = ObjectId(bson.ObjectIdHex(value).Hex())
 	return id, nil
 }

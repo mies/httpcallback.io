@@ -66,19 +66,21 @@ func main() {
 	apiGetRouter := apiRouter.Methods("GET").Subrouter()
 
 	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing))
-	apiGetRouter.HandleFunc("/user/:id", func(response http.ResponseWriter, req *http.Request) {
+	apiGetRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
 		Log.Info("[%v] %v\n", req.Method, req.URL)
 		var result api.HttpResponse
 		var err error
 
 		userId, ok := mux.Vars(req)["id"]
 		if !ok {
+			Log.Warning("id parameter not given, return 404 not found.")
 			result = api.NewHttpStatusCodeResult(http.StatusNotFound)
 		} else {
 			requestArgs := &api.GetUserRequestArgs{
 				UserId: userId,
 			}
 
+			Log.Debug("Handing request to GetUser with %+v", requestArgs)
 			result, err = service.Users.GetUser(req, requestArgs)
 		}
 		WriteResultOrError(response, result, err)
