@@ -26,9 +26,9 @@ type AddUserRequest struct {
 }
 
 type AddUserResponse struct {
-	Id        model.ObjectId               `json:"id"`
-	Username  string                       `json:"username"`
-	AuthToken security.AuthenticationToken `json:"authToken"`
+	Id        model.ObjectId            `json:"id"`
+	Username  string                    `json:"username"`
+	AuthToken model.AuthenticationToken `json:"authToken"`
 }
 
 func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) (HttpResponse, error) {
