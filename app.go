@@ -144,6 +144,8 @@ func HttpReponseWrapper(handler func(*http.Request) (api.HttpResponse, error)) h
 	return func(res http.ResponseWriter, req *http.Request) {
 		fmt.Printf("[%v] %v\n", req.Method, req.URL)
 		result, err := handler(req)
+		req.Body.Close()
+
 		WriteResultOrError(res, result, err)
 	}
 }
