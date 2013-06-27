@@ -5,7 +5,8 @@ import (
 )
 
 type UserRepository interface {
-	Get(model.ObjectId) (*model.User, error)
-	List() ([]*model.User, error)
 	Add(*model.User) error
+	Get(model.ObjectId) (*model.User, error)
+	GetByAuth(username string, authToken model.AuthenticationToken) (*model.User, error)
+	List() ([]*model.User, error)
 }

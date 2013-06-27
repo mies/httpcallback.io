@@ -35,17 +35,27 @@ func (r *MemoryUserRepository) List() ([]*model.User, error) {
 }
 
 func (r *MemoryUserRepository) Get(id model.ObjectId) (*model.User, error) {
+	return r.get(func(user *model.User) bool {
+		return user.Id == id
+	})
+}
+
+func (r *MemoryUserRepository) GetByAuth(username string, authToken model.AuthenticationToken) (*model.User, error) {
+	return r.get(func(user *model.User) bool {
+		return user.Username == username && user.AuthToken == authToken
+	})
+}
+
+func (r *MemoryUserRepository) get(predicate func(*model.User) bool) (*model.User, error) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
 	length := len(r.data)
-	Log.Debug("Getting user with id '%v' out of %v users", id, length)
-
 	for i := 0; i < length; i++ {
 		user := r.data[i]
-		Log.Debug("Matching user %v with id '%v'", i+1, user.Id)
+		isMatch := predicate(user)
 
-		if user.Id == id {
+		if isMatch {
 			return user, nil
 		}
 	}
