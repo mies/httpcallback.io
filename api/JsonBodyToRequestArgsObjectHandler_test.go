@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -152,5 +153,15 @@ func TestNewingPanicsOnWrongSecondOutParameterTypeNotImplementingError(t *testin
 	expectedError := fmt.Sprint("invalid argument type, second out parameter of type *string should implement error interface")
 	if !strings.Contains(err.Error(), expectedError) {
 		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
+	}
+}
+
+func TestNewJsonBodyRequestArgsObjectHandlerSetType(t *testing.T) {
+	h := NewJsonBodyRequestArgsObjectHandler(func(req *http.Request, args *RequestArgs) (HttpResponse, error) {
+		return nil, nil
+	})
+
+	if h.argsObjectType != reflect.TypeOf(&RequestArgs{}) {
+		t.Fatalf("unexpected argsObjectType %v", h.argsObjectType.String())
 	}
 }

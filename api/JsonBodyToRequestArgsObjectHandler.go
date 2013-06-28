@@ -1,10 +1,12 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 )
 
 type JsonBodyToRequestArgsObjectHandler struct {
@@ -69,13 +71,14 @@ func NewJsonBodyRequestArgsObjectHandler(handler interface{}) *JsonBodyToRequest
 	}
 }
 
-// func (h *JsonBodyToRequestArgsObjectHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
-// 	decoder := json.NewDecoder(request.Body)
+func (h *JsonBodyToRequestArgsObjectHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	decoder := json.NewDecoder(request.Body)
 
-// 	argsObjectPtr := reflect.New(h.argsObjectType)
-// 	argsObject := argsObjectPtr.Elem().Interface()
+	argsObjectPtr := reflect.New(h.argsObjectType)
+	if err := decoder.Decode(argsObjectPtr); err != nil {
+		Log.Warning("invalid body for request object type %v: %v", h.argsObjectType.Name(), err.Error())
+		response.WriteHeader(http.StatusBadRequest)
+		response.Write(strings.NewReader(err.Error()))
+	}
 
-// 	err := decoder.Decode(&argsObjectPtr)
-// 	Log.Warning("invalid body for request object type %v: %v", h.argsObjectType.Name(), err.Error())
-
-// }
+}
