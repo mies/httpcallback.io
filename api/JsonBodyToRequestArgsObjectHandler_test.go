@@ -7,14 +7,7 @@ import (
 	"testing"
 )
 
-func HandlerWithWrongInParameterCount() (HttpResponse, error) {
-	return nil, nil
-}
-
 type RequestArgs struct{}
-
-func HandlerWithWrongOutParameterCount(req http.Request, args *RequestArgs) {
-}
 
 func TestNewingPanicsOnWrongKind(t *testing.T) {
 	ok, err := validateHandler("foobar")
@@ -34,7 +27,7 @@ func TestNewingPanicsOnWrongKind(t *testing.T) {
 }
 
 func TestNewingPanicsOnWrongInParameterCount(t *testing.T) {
-	ok, err := validateHandler(HandlerWithWrongInParameterCount)
+	ok, err := validateHandler(func() {})
 
 	if ok {
 		t.Error("Handler with wrong parameter count should not be valid")
@@ -51,7 +44,7 @@ func TestNewingPanicsOnWrongInParameterCount(t *testing.T) {
 }
 
 func TestNewingPanicsOnWrongOutParameterCount(t *testing.T) {
-	ok, err := validateHandler(HandlerWithWrongOutParameterCount)
+	ok, err := validateHandler(func(req *http.Request, args *RequestArgs) {})
 
 	if ok {
 		t.Error("Handler with wrong parameter count should not be valid")
