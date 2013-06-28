@@ -14,25 +14,31 @@ type JsonBodyToRequestArgsObjectHandler struct {
 
 func validateHandler(handler interface{}) (bool, error) {
 	handlerType := reflect.TypeOf(handler)
+
+	// Must be a func
 	if handlerType.Kind() != reflect.Func {
 		return false, errors.New(fmt.Sprintf("invalid handler type %s, handler must be an func", handlerType.Kind().String()))
 	}
+
+	// Must have 2 in parameters
 	if handlerType.NumIn() != 2 {
 		return false, errors.New(fmt.Sprintf("handler does not have 2 in parameters, instead it has %v", handlerType.NumIn()))
 	}
+	// Must have 2 out parameters
 	if handlerType.NumOut() != 2 {
 		return false, errors.New(fmt.Sprintf("handler does not have 2 out parameters, instead it has %v", handlerType.NumOut()))
 	}
 
-	expectedFirstArgType := reflect.TypeOf(http.Request{})
+	// First in parameter must be *http.Request
+	expectedFirstArgType := reflect.TypeOf(&http.Request{})
 	if handlerType.In(0) != expectedFirstArgType {
-		return false, errors.New(fmt.Sprintf("invalid argument type, first argument should be of type %v, not %v",
-			expectedFirstArgType.Name(), handlerType.In(0).Name()))
+		return false, errors.New(fmt.Sprintf("invalid argument type, first argument should be of kind %v, not %v",
+			expectedFirstArgType.String(), handlerType.In(0).String()))
 	}
 
 	if handlerType.In(1).Kind() != reflect.Ptr || handlerType.In(1).Elem().Kind() != reflect.Struct {
-		return false, errors.New(fmt.Sprintf("invalid argument type, second argument should be of kind *struct, not %v",
-			handlerType.In(1).Kind().String()))
+		return false, errors.New(fmt.Sprintf("invalid argument type, second argument should be a pointer to an struct, not %v",
+			handlerType.In(1).String()))
 	}
 
 	return true, nil

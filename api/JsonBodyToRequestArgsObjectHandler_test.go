@@ -66,3 +66,60 @@ func TestNewingPanicsOnWrongOutParameterCount(t *testing.T) {
 		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
 	}
 }
+
+func TestNewingPanicsOnWrongFirstInParameterType(t *testing.T) {
+	ok, err := validateHandler(func(s *string, args *RequestArgs) (HttpResponse, error) {
+		return nil, nil
+	})
+
+	if ok {
+		t.Error("Wrong hander should not be valid")
+	}
+
+	if err == nil {
+		t.Fatal("Wrong hander should return error")
+	}
+
+	expectedError := fmt.Sprint("invalid argument type, first argument should be of kind *http.Request, not *string")
+	if !strings.Contains(err.Error(), expectedError) {
+		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
+	}
+}
+
+func TestNewingPanicsOnWrongSecondInParameterTypeNotPtr(t *testing.T) {
+	ok, err := validateHandler(func(req *http.Request, args RequestArgs) (HttpResponse, error) {
+		return nil, nil
+	})
+
+	if ok {
+		t.Error("Wrong hander should not be valid")
+	}
+
+	if err == nil {
+		t.Fatal("Wrong hander should return error")
+	}
+
+	expectedError := fmt.Sprint("invalid argument type, second argument should be a pointer to an struct, not api.RequestArgs")
+	if !strings.Contains(err.Error(), expectedError) {
+		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
+	}
+}
+
+func TestNewingPanicsOnWrongSecondInParameterTypeNotStruct(t *testing.T) {
+	ok, err := validateHandler(func(req *http.Request, args *func()) (HttpResponse, error) {
+		return nil, nil
+	})
+
+	if ok {
+		t.Error("Wrong hander should not be valid")
+	}
+
+	if err == nil {
+		t.Fatal("Wrong hander should return error")
+	}
+
+	expectedError := fmt.Sprint("invalid argument type, second argument should be a pointer to an struct, not *func()")
+	if !strings.Contains(err.Error(), expectedError) {
+		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
+	}
+}
