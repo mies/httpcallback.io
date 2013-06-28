@@ -20,6 +20,9 @@ func validateHandler(handler interface{}) (bool, error) {
 	if handlerType.NumIn() != 2 {
 		return false, errors.New(fmt.Sprintf("handler does not have 2 in parameters, instead it has %v", handlerType.NumIn()))
 	}
+	if handlerType.NumOut() != 2 {
+		return false, errors.New(fmt.Sprintf("handler does not have 2 out parameters, instead it has %v", handlerType.NumOut()))
+	}
 
 	expectedFirstArgType := reflect.TypeOf(http.Request{})
 	if handlerType.In(0) != expectedFirstArgType {

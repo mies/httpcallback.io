@@ -61,7 +61,7 @@ func TestNewingPanicsOnWrongOutParameterCount(t *testing.T) {
 		t.Fatal("Handler with wring parameter count should return error")
 	}
 
-	expectedError := fmt.Sprint("handler does not have 2 in arguments, instead it has 0")
+	expectedError := fmt.Sprint("handler does not have 2 out parameters, instead it has 0")
 	if !strings.Contains(err.Error(), expectedError) {
 		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
 	}
