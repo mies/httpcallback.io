@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-	"strings"
 )
 
 type JsonBodyToRequestArgsObjectHandler struct {
 	handlerType    reflect.Type
 	argsObjectType reflect.Type
+	handlerValue   reflect.Value
 }
 
 func validateHandler(handler interface{}) (bool, error) {
@@ -68,6 +68,7 @@ func NewJsonBodyRequestArgsObjectHandler(handler interface{}) *JsonBodyToRequest
 	return &JsonBodyToRequestArgsObjectHandler{
 		handlerType:    handlerType,
 		argsObjectType: handlerType.In(1),
+		handlerValue:   reflect.New(handlerType),
 	}
 }
 
@@ -78,7 +79,19 @@ func (h *JsonBodyToRequestArgsObjectHandler) ServeHTTP(response http.ResponseWri
 	if err := decoder.Decode(argsObjectPtr); err != nil {
 		Log.Warning("invalid body for request object type %v: %v", h.argsObjectType.Name(), err.Error())
 		response.WriteHeader(http.StatusBadRequest)
-		response.Write(strings.NewReader(err.Error()))
+		response.Write([]byte(err.Error()))
+		return
 	}
 
+	results := h.handlerValue.Call([]reflect.Value{reflect.ValueOf(request), argsObjectPtr})
+	result := results[0].Interface().(HttpResponse)
+	err := results[1].Interface().(error)
+
+	if err != nil {
+		Log.Error("error from handler %v: %v", h.handlerType.String(), err.Error())
+		response.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	result.WriteResponse(response)
 }
