@@ -142,3 +142,22 @@ func TestNewingPanicsOnWrongFirstOutParameterTypeNotImplementingHttpResponse(t *
 		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
 	}
 }
+
+func TestNewingPanicsOnWrongSecondOutParameterTypeNotImplementingError(t *testing.T) {
+	ok, err := validateHandler(func(req *http.Request, args *RequestArgs) (HttpResponse, *string) {
+		return nil, nil
+	})
+
+	if ok {
+		t.Error("Wrong hander should not be valid")
+	}
+
+	if err == nil {
+		t.Fatal("Wrong hander should return error")
+	}
+
+	expectedError := fmt.Sprint("invalid argument type, second out parameter of type *string should implement error interface")
+	if !strings.Contains(err.Error(), expectedError) {
+		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
+	}
+}

@@ -48,6 +48,12 @@ func validateHandler(handler interface{}) (bool, error) {
 			handlerType.Out(0).String()))
 	}
 
+	// Second out parameter must be error
+	if handlerType.Out(1) != reflect.TypeOf((*error)(nil)).Elem() {
+		return false, errors.New(fmt.Sprintf("invalid argument type, second out parameter of type %v should implement error interface",
+			handlerType.Out(1).String()))
+	}
+
 	return true, nil
 }
 
