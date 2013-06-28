@@ -43,7 +43,7 @@ func validateHandler(handler interface{}) (bool, error) {
 	}
 
 	// First out parameter must be HttpResponse
-	if handlerType.Out(0).Implements(reflect.TypeOf((*HttpResponse)(nil))) {
+	if !handlerType.Out(0).Implements(reflect.TypeOf((*HttpResponse)(nil)).Elem()) {
 		return false, errors.New(fmt.Sprintf("invalid argument type, first out parameter of type %v should implement api.HttpResponse interface",
 			handlerType.Out(0).String()))
 	}
