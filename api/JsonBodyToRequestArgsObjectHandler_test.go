@@ -2,11 +2,18 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 	"testing"
 )
 
-func HandlerWithWrongParameterCount() {
+func HandlerWithWrongInParameterCount() (HttpResponse, error) {
+	return nil, nil
+}
+
+type RequestArgs struct{}
+
+func HandlerWithWrongOutParameterCount(req http.Request, args *RequestArgs) {
 }
 
 func TestNewingPanicsOnWrongKind(t *testing.T) {
@@ -26,18 +33,35 @@ func TestNewingPanicsOnWrongKind(t *testing.T) {
 	}
 }
 
-func TestNewingPanicsOnWrongArgumentCount(t *testing.T) {
-	ok, err := validateHandler(HandlerWithWrongParameterCount)
+func TestNewingPanicsOnWrongInParameterCount(t *testing.T) {
+	ok, err := validateHandler(HandlerWithWrongInParameterCount)
 
 	if ok {
 		t.Error("Handler with wrong parameter count should not be valid")
 	}
 
 	if err == nil {
-		t.Error("Handler with wring parameter count should return error")
+		t.Fatal("Handler with wring parameter count should return error")
 	}
 
-	expectedError := fmt.Sprint("handler does not have 2 arguments, instead it has 0")
+	expectedError := fmt.Sprint("handler does not have 2 in parameters, instead it has 0")
+	if !strings.Contains(err.Error(), expectedError) {
+		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
+	}
+}
+
+func TestNewingPanicsOnWrongOutParameterCount(t *testing.T) {
+	ok, err := validateHandler(HandlerWithWrongOutParameterCount)
+
+	if ok {
+		t.Error("Handler with wrong parameter count should not be valid")
+	}
+
+	if err == nil {
+		t.Fatal("Handler with wring parameter count should return error")
+	}
+
+	expectedError := fmt.Sprint("handler does not have 2 in arguments, instead it has 0")
 	if !strings.Contains(err.Error(), expectedError) {
 		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
 	}

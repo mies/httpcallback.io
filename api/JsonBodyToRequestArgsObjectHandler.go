@@ -18,18 +18,18 @@ func validateHandler(handler interface{}) (bool, error) {
 		return false, errors.New(fmt.Sprintf("invalid handler type %s, handler must be an func", handlerType.Kind().String()))
 	}
 	if handlerType.NumIn() != 2 {
-		return false, errors.New(fmt.Sprintf("handler does not have 2 arguments, instead it has %v", handlerType.NumIn()))
+		return false, errors.New(fmt.Sprintf("handler does not have 2 in parameters, instead it has %v", handlerType.NumIn()))
 	}
 
 	expectedFirstArgType := reflect.TypeOf(http.Request{})
 	if handlerType.In(0) != expectedFirstArgType {
-		panic(fmt.Sprintf("invalid argument type, first argument should be of type %v, not %v",
+		return false, errors.New(fmt.Sprintf("invalid argument type, first argument should be of type %v, not %v",
 			expectedFirstArgType.Name(), handlerType.In(0).Name()))
 	}
 
-	if handlerType.In(1).Kind() != reflect.Struct {
-		panic(fmt.Sprintf("invalid argument type, second argument should be of kind struct, not %v",
-			handlerType.In(0).Name()))
+	if handlerType.In(1).Kind() != reflect.Ptr {
+		return false, errors.New(fmt.Sprintf("invalid argument type, second argument should be of kind ptr, not %v",
+			handlerType.In(1).Kind().String()))
 	}
 
 	return true, nil
