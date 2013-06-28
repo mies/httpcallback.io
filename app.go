@@ -88,19 +88,8 @@ func main() {
 	apiPostRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		Log.Info("[%v] %v\n", req.Method, req.URL)
 
-		decoder := json.NewDecoder(req.Body)
-		var requestArgs api.AddUserRequest
-		Log.Debug("Decoding json into request AddUserRequest object.")
-
-		err = decoder.Decode(&requestArgs)
-		if err != nil {
-			Log.Error("Error decoding body json to AddUserRequest: %s", err.Error())
-			response.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		result, err := service.Users.AddUser(req, &requestArgs)
-		WriteResultOrError(response, result, err)
+		handler := api.NewJsonBodyRequestArgsObjectHandler(service.Users.AddUser)
+		handler.ServeHTTP(response, req)
 	})
 
 	apiGetRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
