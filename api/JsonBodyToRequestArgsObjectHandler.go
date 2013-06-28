@@ -36,9 +36,16 @@ func validateHandler(handler interface{}) (bool, error) {
 			expectedFirstArgType.String(), handlerType.In(0).String()))
 	}
 
+	// Second in parameter must be *struct
 	if handlerType.In(1).Kind() != reflect.Ptr || handlerType.In(1).Elem().Kind() != reflect.Struct {
 		return false, errors.New(fmt.Sprintf("invalid argument type, second argument should be a pointer to an struct, not %v",
 			handlerType.In(1).String()))
+	}
+
+	// First out parameter must be HttpResponse
+	if handlerType.Out(0).Implements(reflect.TypeOf((*HttpResponse)(nil))) {
+		return false, errors.New(fmt.Sprintf("invalid argument type, first out parameter of type %v should implement api.HttpResponse interface",
+			handlerType.Out(0).String()))
 	}
 
 	return true, nil
