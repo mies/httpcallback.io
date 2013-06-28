@@ -30,8 +30,8 @@ func validateHandler(handler interface{}) (bool, error) {
 			expectedFirstArgType.Name(), handlerType.In(0).Name()))
 	}
 
-	if handlerType.In(1).Kind() != reflect.Ptr {
-		return false, errors.New(fmt.Sprintf("invalid argument type, second argument should be of kind ptr, not %v",
+	if handlerType.In(1).Kind() != reflect.Ptr || handlerType.In(1).Elem().Kind() != reflect.Struct {
+		return false, errors.New(fmt.Sprintf("invalid argument type, second argument should be of kind *struct, not %v",
 			handlerType.In(1).Kind().String()))
 	}
 

@@ -17,14 +17,14 @@ func HandlerWithWrongOutParameterCount(req http.Request, args *RequestArgs) {
 }
 
 func TestNewingPanicsOnWrongKind(t *testing.T) {
-	ok, err := validateHandler("hello")
+	ok, err := validateHandler("foobar")
 
 	if ok {
 		t.Error("Handler of wrong kind should not be valid")
 	}
 
 	if err == nil {
-		t.Error("Handler of wrong kind should return error")
+		t.Fatal("Handler of wrong kind should return error")
 	}
 
 	expectedError := fmt.Sprint("invalid handler type string, handler must be an func")
