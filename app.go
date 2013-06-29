@@ -5,11 +5,14 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/op/go-logging"
 	"github.com/pjvds/httpcallback.io/api"
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/data/memory"
 	"github.com/pjvds/httpcallback.io/data/mongo"
+	"log"
 	"net/http"
+	"os"
 )
 
 var (
@@ -38,6 +41,10 @@ func createRepositoryFactory(config *Configuration) (data.RepositoryFactory, err
 
 func main() {
 	flag.Parse()
+	b := logging.NewLogBackend(os.Stdout, "", log.LstdFlags)
+	b.Color = true
+	logging.SetBackend(b)
+
 	Log.Info("Starting with config %s\n", *ConfigPath)
 	config, err := OpenConfig(*ConfigPath)
 	if err != nil {
