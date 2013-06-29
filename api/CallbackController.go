@@ -18,7 +18,7 @@ func NewCallbackController(callbacks data.CallbackRepository) *CallbackControlle
 	}
 }
 
-func (ctr *CallbackController) NewCallback(r *http.Request, args *model.CallbackRequest) (*JsonResponse, error) {
+func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *model.CallbackRequest) (*JsonResponse, error) {
 	callback := model.Callback{
 		Id:        bson.NewObjectId().String(),
 		CreatedAt: time.Now(),

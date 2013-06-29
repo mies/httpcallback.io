@@ -5,6 +5,7 @@ import (
 	"fmt"
 	. "launchpad.net/gocheck"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 )
@@ -71,6 +72,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserResponse(c *C) {
 	c.Assert(doc["id"], NotNil)
 	c.Assert(len(doc["id"].(string)), Equals, 24)
 	c.Assert(doc["username"], Equals, user["username"])
+	c.Assert(doc["authToken"], NotNil)
 }
 
 func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
@@ -107,9 +109,36 @@ func (s *ApiIntegrationTestSuite) TestPostNewCallbackUnauthorized(c *C) {
 	buf := bytes.NewBuffer(data)
 
 	response, err := http.Post("http://api.localhost:8000/callbacks", "application/json", buf)
-
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusUnauthorized)
+}
+
+func (s *ApiIntegrationTestSuite) TestPostNewCallbackSuccess(c *C) {
+	user := Document{
+		"username": "addnewcallbackuser",
+		"password": "foobar",
+		"email":    "addnewcallbackuser@httpcallback.io",
+	}
+	data := user.ToJson()
+	buf := bytes.NewBuffer(data)
+
+	response, err := http.Post("http://api.localhost:8000/users", "application/json", buf)
+	doc, _ := GetBodyAsDocument(response)
+	authToken := doc["authToken"]
+
+	callback := Document{
+		"when": "2006-01-02T15:04:05Z",
+		"url":  "foobar",
+	}
+	data = callback.ToJson()
+	buf = bytes.NewBuffer(data)
+
+	rawUrl := fmt.Sprintf("http://api.localhost:8000/callbacks?auth_username=%v&auth_token=%v",
+		url.QueryEscape(user["username"].(string)), url.QueryEscape(authToken.(string)))
+	response, err = http.Post(rawUrl, "application/json", buf)
+
+	c.Assert(err, IsNil)
+	c.Assert(response.StatusCode, Equals, http.StatusOK)
 }
 
 func (s *ApiIntegrationTestSuite) TestGetUserReturnsStatusNotFound(c *C) {

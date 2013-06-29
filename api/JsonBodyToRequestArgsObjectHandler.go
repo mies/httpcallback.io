@@ -32,11 +32,13 @@ func validateHandler(handler interface{}) (bool, error) {
 	}
 
 	// First in parameter must be *http.Request
-	expectedFirstArgType := reflect.TypeOf(&http.Request{})
-	if handlerType.In(0) != expectedFirstArgType {
-		return false, errors.New(fmt.Sprintf("invalid argument type, first argument should be of kind %v, not %v",
-			expectedFirstArgType.String(), handlerType.In(0).String()))
-	}
+
+	// TODO: Add type check for both, auth and non auth request
+	//requestType := reflect.TypeOf(&http.Request{})
+	// if handlerType.In(0).AssignableTo(requestType) {
+	// 	return false, errors.New(fmt.Sprintf("invalid argument type, first argument should be of kind %v, not %v",
+	// 		requestType.String(), handlerType.In(0).String()))
+	// }
 
 	// Second in parameter must be *struct
 	if handlerType.In(1).Kind() != reflect.Ptr || handlerType.In(1).Elem().Kind() != reflect.Struct {
