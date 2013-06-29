@@ -4,13 +4,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/op/go-logging"
 	"github.com/pjvds/httpcallback.io/api"
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/data/memory"
 	"github.com/pjvds/httpcallback.io/data/mongo"
-	"log"
 	"net/http"
 	"os"
 )
@@ -73,7 +72,6 @@ func main() {
 
 	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing))
 	apiGetRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
-		Log.Info("[%v] %v\n", req.Method, req.URL)
 		var result api.HttpResponse
 		var err error
 
@@ -94,7 +92,6 @@ func main() {
 
 	addUserHandler := api.NewJsonBodyRequestArgsObjectHandler(service.Users.AddUser)
 	apiPostRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
-		Log.Info("[%v] %v\n", req.Method, req.URL)
 		addUserHandler.ServeHTTP(response, req)
 	})
 
@@ -106,13 +103,11 @@ func main() {
 	addCallbackHandler := api.NewJsonBodyRequestArgsObjectHandler(service.Callbacks.NewCallback)
 
 	apiPostRouter.Handle("/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
-		Log.Info("[%v] %v\n", req.Method, req.URL)
-
 		addCallbackHandler.ServeAuthHTTP(response, req)
 	}))
 
 	Log.Info("httpcallback.io now hosting at %s\n", address)
-	if err := http.ListenAndServe(address, router); err != nil {
+	if err := http.ListenAndServe(address, handlers.LoggingHandler(os.Stdout, router)); err != nil {
 		Log.Fatal(err)
 	}
 }

@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/op/go-logging"
+	"log"
+	"os"
 )
 
 var Log = logging.MustGetLogger("main")
