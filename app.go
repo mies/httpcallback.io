@@ -41,14 +41,13 @@ func createRepositoryFactory(config *Configuration) (data.RepositoryFactory, err
 
 func main() {
 	flag.Parse()
-	b := logging.NewLogBackend(os.Stdout, "", log.LstdFlags)
-	b.Color = true
-	logging.SetBackend(b)
+	InitLogging()
 
 	Log.Info("Starting with config %s\n", *ConfigPath)
 	config, err := OpenConfig(*ConfigPath)
 	if err != nil {
-		panic(err)
+		Log.Error("Unable to open config: %v", err.Error())
+		return
 	}
 
 	repositoryFactory, err := createRepositoryFactory(config)
