@@ -95,14 +95,14 @@ func main() {
 		addUserHandler.ServeHTTP(response, req)
 	})
 
-	apiGetRouter.Handle("/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
+	apiGetRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
 		result, err := service.Callbacks.ListCallbacks(req)
 		WriteResultOrError(response, result, err)
 	}))
 
 	addCallbackHandler := api.NewJsonBodyRequestArgsObjectHandler(service.Callbacks.NewCallback)
 
-	apiPostRouter.Handle("/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
+	apiPostRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
 		addCallbackHandler.ServeAuthHTTP(response, req)
 	}))
 

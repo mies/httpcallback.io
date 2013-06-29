@@ -101,6 +101,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
 	c.Assert(usersResponse["id"], Equals, creationReponse["id"])
 }
 
+// Users need to be authorized before they can post new callbacks
 func (s *ApiIntegrationTestSuite) TestPostNewCallbackUnauthorized(c *C) {
 	callback := Document{
 		"when": "2006-01-02T15:04:05Z",
@@ -109,7 +110,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewCallbackUnauthorized(c *C) {
 	data := callback.ToJson()
 	buf := bytes.NewBuffer(data)
 
-	response, err := http.Post("http://api.localhost:8000/callbacks", "application/json", buf)
+	response, err := http.Post("http://api.localhost:8000/user/callbacks", "application/json", buf)
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusUnauthorized)
 }
@@ -134,7 +135,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewCallbackSuccess(c *C) {
 	data = callback.ToJson()
 	buf = bytes.NewBuffer(data)
 
-	rawUrl := fmt.Sprintf("http://api.localhost:8000/callbacks?auth_username=%v&auth_token=%v",
+	rawUrl := fmt.Sprintf("http://api.localhost:8000/user/callbacks?auth_username=%v&auth_token=%v",
 		url.QueryEscape(user["username"].(string)), url.QueryEscape(authToken.(string)))
 	response, err = http.Post(rawUrl, "application/json", buf)
 
