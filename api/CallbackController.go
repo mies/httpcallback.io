@@ -3,9 +3,7 @@ package api
 import (
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/model"
-	"labix.org/v2/mgo/bson"
 	"net/http"
-	"time"
 )
 
 type CallbackController struct {
@@ -19,18 +17,15 @@ func NewCallbackController(callbacks data.CallbackRepository) *CallbackControlle
 }
 
 func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *model.CallbackRequest) (*JsonResponse, error) {
-	callback := model.Callback{
-		Id:        bson.NewObjectId().String(),
-		CreatedAt: time.Now(),
-		Request:   args,
-	}
-	err := ctr.callbacks.Add(&callback)
+	id := model.NewObjectId()
+	callback := model.NewCallback(id, r.UserId, args)
+	err := ctr.callbacks.Add(callback)
 	if err != nil {
 		return nil, err
 	}
 
 	return JsonResult(&struct {
-		Id string `json:"id"`
+		Id model.ObjectId `json:"id"`
 	}{
 		Id: callback.Id,
 	})

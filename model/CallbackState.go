@@ -5,14 +5,16 @@ import (
 )
 
 type Callback struct {
-	Id        string           `json:"id"`
+	Id        ObjectId         `json:"id"`
+	UserId    ObjectId         `json:"userId"`
 	CreatedAt time.Time        `json:"createAt"`
 	Request   *CallbackRequest `json:"request"`
 }
 
-func NewCallback(id string, request *CallbackRequest) *Callback {
+func NewCallback(id ObjectId, userId ObjectId, request *CallbackRequest) *Callback {
 	return &Callback{
 		Id:        id,
+		UserId:    userId,
 		CreatedAt: time.Now(),
 		Request:   request,
 	}
