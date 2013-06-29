@@ -15,6 +15,7 @@ type ApiIntegrationTestSuite struct {
 	ProcessFilename string
 	process         *os.Process
 	Warmup          int
+	ApiBaseUrl      string
 }
 
 // Runs before the test suite starts
@@ -42,7 +43,7 @@ func (s *ApiIntegrationTestSuite) TearDownSuite(c *C) {
 }
 
 func (s *ApiIntegrationTestSuite) TestPing(c *C) {
-	response, err := http.Get("http://api.localhost:8000/ping")
+	response, err := http.Get(s.ApiBaseUrl + "/ping")
 
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusOK)
@@ -62,7 +63,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserResponse(c *C) {
 	data := user.ToJson()
 	buf := bytes.NewBuffer(data)
 
-	response, err := http.Post("http://api.localhost:8000/users", "application/json", buf)
+	response, err := http.Post(s.ApiBaseUrl+"/users", "application/json", buf)
 
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusOK)
@@ -85,13 +86,13 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
 	data := user.ToJson()
 	buf := bytes.NewBuffer(data)
 
-	response, err := http.Post("http://api.localhost:8000/users", "application/json", buf)
+	response, err := http.Post(s.ApiBaseUrl+"/users", "application/json", buf)
 
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusOK)
 
 	creationReponse, _ := GetBodyAsDocument(response)
-	response, err = http.Get(fmt.Sprintf("http://api.localhost:8000/user/%s", creationReponse["id"]))
+	response, err = http.Get(fmt.Sprintf(s.ApiBaseUrl+"/user/%s", creationReponse["id"]))
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusOK)
 
@@ -110,7 +111,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewCallbackUnauthorized(c *C) {
 	data := callback.ToJson()
 	buf := bytes.NewBuffer(data)
 
-	response, err := http.Post("http://api.localhost:8000/user/callbacks", "application/json", buf)
+	response, err := http.Post(s.ApiBaseUrl+"/user/callbacks", "application/json", buf)
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusUnauthorized)
 }
@@ -124,7 +125,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewCallbackSuccess(c *C) {
 	data := user.ToJson()
 	buf := bytes.NewBuffer(data)
 
-	response, err := http.Post("http://api.localhost:8000/users", "application/json", buf)
+	response, err := http.Post(s.ApiBaseUrl+"/users", "application/json", buf)
 	doc, _ := GetBodyAsDocument(response)
 	authToken := doc["authToken"]
 
@@ -135,7 +136,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewCallbackSuccess(c *C) {
 	data = callback.ToJson()
 	buf = bytes.NewBuffer(data)
 
-	rawUrl := fmt.Sprintf("http://api.localhost:8000/user/callbacks?auth_username=%v&auth_token=%v",
+	rawUrl := fmt.Sprintf(s.ApiBaseUrl+"/user/callbacks?auth_username=%v&auth_token=%v",
 		url.QueryEscape(user["username"].(string)), url.QueryEscape(authToken.(string)))
 	response, err = http.Post(rawUrl, "application/json", buf)
 
@@ -144,7 +145,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewCallbackSuccess(c *C) {
 }
 
 func (s *ApiIntegrationTestSuite) TestGetUserReturnsStatusNotFound(c *C) {
-	response, err := http.Get("http://api.localhost:8000/user/123")
+	response, err := http.Get(s.ApiBaseUrl + "/user/123")
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusNotFound)
 }
