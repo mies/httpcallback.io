@@ -17,10 +17,31 @@ type AuthenticatedRequest struct {
 	Username string
 }
 
+type Authenticator struct {
+	userRepository data.UserRepository
+}
+
 type AuthenticationHandler struct {
-	UserRepository         data.UserRepository
+	authenticator          Authenticator
 	Handler                AuthenticatedRequestHandler
 	NotFoundOnUnauthorized bool
+}
+
+func NewAuthenticator(userRepository data.UserRepository) *Authenticator {
+	return &Authenticator{
+		userRepository: userRepository,
+	}
+}
+
+func (a Authenticator) Authenticate(username string, token string) (*model.UserAuthInfo, error) {
+	return a.userRepository.GetByAuth(username, model.AuthenticationToken(token))
+}
+
+func (a Authenticator) Wrap(handler AuthenticatedRequestHandler) *AuthenticationHandler {
+	return &AuthenticationHandler{
+		authenticator: a,
+		Handler:       handler,
+	}
 }
 
 func (h *AuthenticationHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
@@ -38,7 +59,7 @@ func (h *AuthenticationHandler) ServeHTTP(response http.ResponseWriter, request 
 		return
 	}
 
-	user, err := h.UserRepository.GetByAuth(username, model.AuthenticationToken(token))
+	user, err := h.authenticator.Authenticate(username, token)
 
 	if err != nil {
 		Log.Error("Unable to authenticate request: %v", err.Error())

@@ -96,9 +96,13 @@ func main() {
 	})
 
 	addCallbackHandler := api.NewJsonBodyRequestArgsObjectHandler(service.Callbacks.NewCallback)
+	authenticator := api.NewAuthenticator(repositoryFactory.CreateUserRepository())
+	addCallbackHandlerEntryPoint := authenticator.Wrap(addCallbackHandler.ServeAuthHTTP)
+
 	apiPostRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
 		Log.Info("[%v] %v\n", req.Method, req.URL)
-		addCallbackHandler.ServeHTTP(response, req)
+
+		addCallbackHandlerEntryPoint.ServeHTTP(response, req)
 	})
 
 	Log.Info("httpcallback.io now hosting at %s\n", address)
