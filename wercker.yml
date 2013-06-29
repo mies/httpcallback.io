@@ -35,4 +35,5 @@ build:
     - script:
         name: go test
         code: |
+          echo "127.0.0.1       api.localhost" | sudo tee "/etc/hosts"
           go test ./...
