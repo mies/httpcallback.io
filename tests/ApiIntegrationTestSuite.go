@@ -14,6 +14,7 @@ import (
 type ApiIntegrationTestSuite struct {
 	ProcessFilename string
 	process         *os.Process
+	Warmup          int
 }
 
 // Runs before the test suite starts
@@ -27,7 +28,7 @@ func (s *ApiIntegrationTestSuite) SetUpSuite(c *C) {
 	}
 
 	// Allow process to warm up
-	time.Sleep(750 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 	s.process = process
 
 	c.Logf("Started %s, pid %v", s.ProcessFilename, process.Pid)
