@@ -72,6 +72,12 @@ func NewJsonBodyRequestArgsObjectHandler(handler interface{}) *JsonBodyToRequest
 	}
 }
 
+func (h *JsonBodyToRequestArgsObjectHandler) invoke(args interface{}) (HttpResponse, error) {
+	results := h.handlerValue.Call([]reflect.Value{reflect.ValueOf(request), argsObjectPtr})
+	result := results[0].Interface().(HttpResponse)
+	err := results[1].Interface().(error)
+}
+
 func (h *JsonBodyToRequestArgsObjectHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	decoder := json.NewDecoder(request.Body)
 
@@ -83,9 +89,7 @@ func (h *JsonBodyToRequestArgsObjectHandler) ServeHTTP(response http.ResponseWri
 		return
 	}
 
-	results := h.handlerValue.Call([]reflect.Value{reflect.ValueOf(request), argsObjectPtr})
-	result := results[0].Interface().(HttpResponse)
-	err := results[1].Interface().(error)
+	result, err := h.invoke(argsObjectPtr)
 
 	if err != nil {
 		Log.Error("error from handler %v: %v", h.handlerType.String(), err.Error())
