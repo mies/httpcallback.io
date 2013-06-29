@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -10,8 +9,6 @@ import (
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/data/memory"
 	"github.com/pjvds/httpcallback.io/data/mongo"
-	"github.com/pjvds/httpcallback.io/model"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -86,33 +83,22 @@ func main() {
 		}
 		WriteResultOrError(response, result, err)
 	})
+
+	addUserHandler := api.NewJsonBodyRequestArgsObjectHandler(service.Users.AddUser)
 	apiPostRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		Log.Info("[%v] %v\n", req.Method, req.URL)
-
-		handler := api.NewJsonBodyRequestArgsObjectHandler(service.Users.AddUser)
-		handler.ServeHTTP(response, req)
+		addUserHandler.ServeHTTP(response, req)
 	})
 
 	apiGetRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
 		result, err := service.Callbacks.ListCallbacks(req)
 		WriteResultOrError(response, result, err)
 	})
+
+	addCallbackHandler := api.NewJsonBodyRequestArgsObjectHandler(service.Callbacks.NewCallback)
 	apiPostRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
-		data, err := ioutil.ReadAll(req.Body)
-		if err != nil {
-			panic(err)
-		}
-
-		var args model.CallbackRequest
-		err = json.Unmarshal(data, &args)
-		if err != nil {
-			fmt.Println("Error decoding body json to CallbackRequest: ", err)
-			response.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		result, err := service.Callbacks.NewCallback(req, &args)
-		WriteResultOrError(response, result, err)
+		Log.Info("[%v] %v\n", req.Method, req.URL)
+		addCallbackHandler.ServeHTTP(response, req)
 	})
 
 	Log.Info("httpcallback.io now hosting at %s\n", address)

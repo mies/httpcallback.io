@@ -103,8 +103,6 @@ func (h *JsonBodyToRequestArgsObjectHandler) ServeHTTP(response http.ResponseWri
 		return
 	}
 
-	Log.Info("[%s] %+v", argsObject, argsObject)
-
 	result, err := h.invoke(request, reflect.ValueOf(argsObject))
 
 	if err != nil {
