@@ -65,31 +65,47 @@ func NewJsonBodyRequestArgsObjectHandler(handler interface{}) *JsonBodyToRequest
 	}
 
 	handlerType := reflect.TypeOf(handler)
-	return &JsonBodyToRequestArgsObjectHandler{
+	h := &JsonBodyToRequestArgsObjectHandler{
 		handlerType:    handlerType,
 		argsObjectType: handlerType.In(1),
-		handlerValue:   reflect.New(handlerType),
+		handlerValue:   reflect.ValueOf(handler),
 	}
+
+	Log.Debug("Created JsonBodyRequestAgsObjectHandler for func %v", h.handlerType.String())
+	return h
 }
 
-func (h *JsonBodyToRequestArgsObjectHandler) invoke(args interface{}) (HttpResponse, error) {
-	results := h.handlerValue.Call([]reflect.Value{reflect.ValueOf(request), argsObjectPtr})
-	result := results[0].Interface().(HttpResponse)
-	err := results[1].Interface().(error)
+func (h *JsonBodyToRequestArgsObjectHandler) invoke(request *http.Request, args reflect.Value) (HttpResponse, error) {
+	var result HttpResponse
+	var err error
+
+	results := h.handlerValue.Call([]reflect.Value{reflect.ValueOf(request), args})
+	if !results[0].IsNil() {
+		result = results[0].Interface().(HttpResponse)
+	}
+	if !results[1].IsNil() {
+		err = results[1].Interface().(error)
+	}
+
+	return result, err
 }
 
 func (h *JsonBodyToRequestArgsObjectHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	decoder := json.NewDecoder(request.Body)
 
-	argsObjectPtr := reflect.New(h.argsObjectType)
-	if err := decoder.Decode(argsObjectPtr); err != nil {
+	argsObjectPtr := reflect.New(h.argsObjectType.Elem())
+	argsObject := argsObjectPtr.Interface()
+
+	if err := decoder.Decode(&argsObject); err != nil {
 		Log.Warning("invalid body for request object type %v: %v", h.argsObjectType.Name(), err.Error())
 		response.WriteHeader(http.StatusBadRequest)
 		response.Write([]byte(err.Error()))
 		return
 	}
 
-	result, err := h.invoke(argsObjectPtr)
+	Log.Info("[%s] %+v", argsObject, argsObject)
+
+	result, err := h.invoke(request, reflect.ValueOf(argsObject))
 
 	if err != nil {
 		Log.Error("error from handler %v: %v", h.handlerType.String(), err.Error())

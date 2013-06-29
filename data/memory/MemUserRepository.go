@@ -40,10 +40,19 @@ func (r *MemoryUserRepository) Get(id model.ObjectId) (*model.User, error) {
 	})
 }
 
-func (r *MemoryUserRepository) GetByAuth(username string, authToken model.AuthenticationToken) (*model.User, error) {
-	return r.get(func(user *model.User) bool {
+func (r *MemoryUserRepository) GetByAuth(username string, authToken model.AuthenticationToken) (*model.UserAuthInfo, error) {
+	user, err := r.get(func(user *model.User) bool {
 		return user.Username == username && user.AuthToken == authToken
 	})
+
+	if user == nil || err != nil {
+		return nil, err
+	}
+
+	return &model.UserAuthInfo{
+		UserId:   user.Id,
+		Username: user.Username,
+	}, nil
 }
 
 func (r *MemoryUserRepository) get(predicate func(*model.User) bool) (*model.User, error) {
