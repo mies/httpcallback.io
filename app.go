@@ -53,6 +53,8 @@ func main() {
 	usersController := api.NewUserController(repositoryFactory.CreateUserRepository())
 	service := api.NewService(callbacksController, usersController)
 
+	authenticator := api.NewAuthenticator(repositoryFactory.CreateUserRepository())
+
 	address := fmt.Sprintf("%s:%v", *Address, *Port)
 	router := mux.NewRouter()
 
@@ -90,20 +92,18 @@ func main() {
 		addUserHandler.ServeHTTP(response, req)
 	})
 
-	apiGetRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
+	apiGetRouter.Handle("/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
 		result, err := service.Callbacks.ListCallbacks(req)
 		WriteResultOrError(response, result, err)
-	})
+	}))
 
 	addCallbackHandler := api.NewJsonBodyRequestArgsObjectHandler(service.Callbacks.NewCallback)
-	authenticator := api.NewAuthenticator(repositoryFactory.CreateUserRepository())
-	addCallbackHandlerEntryPoint := authenticator.Wrap(addCallbackHandler.ServeAuthHTTP)
 
-	apiPostRouter.HandleFunc("/callbacks", func(response http.ResponseWriter, req *http.Request) {
+	apiPostRouter.Handle("/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
 		Log.Info("[%v] %v\n", req.Method, req.URL)
 
-		addCallbackHandlerEntryPoint.ServeHTTP(response, req)
-	})
+		addCallbackHandler.ServeAuthHTTP(response, req)
+	}))
 
 	Log.Info("httpcallback.io now hosting at %s\n", address)
 	if err := http.ListenAndServe(address, router); err != nil {

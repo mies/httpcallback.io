@@ -19,6 +19,14 @@ func (r *MemoryCallbackRepository) Add(callback *model.Callback) error {
 	return nil
 }
 
-func (r *MemoryCallbackRepository) List() ([]*model.Callback, error) {
-	return r.data, nil
+func (r *MemoryCallbackRepository) List(userId model.ObjectId) ([]*model.Callback, error) {
+	result := make([]*model.Callback, 0)
+
+	for _, c := range r.data {
+		if c.UserId == userId {
+			result = append(result, c)
+		}
+	}
+
+	return result, nil
 }

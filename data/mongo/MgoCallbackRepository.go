@@ -3,6 +3,7 @@ package mongo
 import (
 	"github.com/pjvds/httpcallback.io/model"
 	"labix.org/v2/mgo"
+	"labix.org/v2/mgo/bson"
 )
 
 type MgoCallbackRepository struct {
@@ -21,8 +22,8 @@ func (r *MgoCallbackRepository) Add(callback *model.Callback) error {
 	return r.database.C("Callbacks").Insert(callback)
 }
 
-func (r *MgoCallbackRepository) List() ([]*model.Callback, error) {
-	query := r.database.C("Callbacks").Find(nil)
+func (r *MgoCallbackRepository) List(userId model.ObjectId) ([]*model.Callback, error) {
+	query := r.database.C("Callbacks").Find(bson.M{"userId": userId})
 	var result []*model.Callback
 	err := query.All(&result)
 	if result == nil {

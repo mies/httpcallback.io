@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/model"
-	"net/http"
 )
 
 type CallbackController struct {
@@ -31,8 +30,8 @@ func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *model.
 	})
 }
 
-func (ctr *CallbackController) ListCallbacks(r *http.Request) (*JsonResponse, error) {
-	callbacks, err := ctr.callbacks.List()
+func (ctr *CallbackController) ListCallbacks(r *AuthenticatedRequest) (*JsonResponse, error) {
+	callbacks, err := ctr.callbacks.List(r.UserId)
 	if err != nil {
 		return nil, err
 	} else {
