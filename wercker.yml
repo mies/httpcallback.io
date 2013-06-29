@@ -26,13 +26,13 @@ build:
         code: |
           cd $WERCKER_SOURCE_DIR
           go version
-          go get ./...
+          go get
     - script:
         name: go build
         code: |
-          go build .
+          go build
     - script:
         name: go test
         code: |
           echo "127.0.0.1       api.localhost" | sudo tee "/etc/hosts"
-          go test ./...
+          go test
