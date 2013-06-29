@@ -9,20 +9,26 @@ build:
         name: setup golang
         code: |
           mkdir $HOME/mygo
-          export GOPATH=$HOME/mygo
+          export GOPATH="$HOME/mygo"
           export PATH=$PATH:$GOPATH/bin
           mkdir $GOPATH/bin
           mkdir $GOPATH/pkg
           if test "${GIT_SSH_PROJECT+set}" == set; then mkdir -p $GOPATH/src/$GIT_SSH_DOMAIN/$GIT_SSH_OWNER/$GIT_SSH_PROJECT; else ln -s $WERCKER_SOURCE_DIR $GOPATH/src; fi
           if test "${GIT_SSH_PROJECT+set}" == set; then cp -R $WERCKER_SOURCE_DIR/* $GOPATH/src/$GIT_SSH_DOMAIN/$GIT_SSH_OWNER/$GIT_SSH_PROJECT;  fi
           if test "${GIT_SSH_PROJECT+set}" == set; then export WERCKER_ROOT=$GOPATH/src/$GIT_SSH_DOMAIN/$GIT_SSH_OWNER/$GIT_SSH_PROJECT; fi
+
+          org="$WERCKER_SOURCE_DIR"
+          export WERCKER_SOURCE_DIR="$GOPATH/src/github.com/pjvds/httpcallback.io"
+          mkdir -p "$WERCKER_SOURCE_DIR"
+
+          sudo cp -R "$org/" "$WERCKER_SOURCE_DIR"
     - script:
         name: go get
         code: |
           cd $WERCKER_SOURCE_DIR
           go version
           go get ./...
-    - script: 
+    - script:
         name: go build
         code: |
           go build .
