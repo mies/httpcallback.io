@@ -75,11 +75,11 @@ func NewJsonBodyRequestArgsObjectHandler(handler interface{}) *JsonBodyToRequest
 	return h
 }
 
-func (h *JsonBodyToRequestArgsObjectHandler) invoke(request *http.Request, args reflect.Value) (HttpResponse, error) {
+func (h *JsonBodyToRequestArgsObjectHandler) invoke(request reflect.Value, args reflect.Value) (HttpResponse, error) {
 	var result HttpResponse
 	var err error
 
-	results := h.handlerValue.Call([]reflect.Value{reflect.ValueOf(request), args})
+	results := h.handlerValue.Call([]reflect.Value{request, args})
 	if !results[0].IsNil() {
 		result = results[0].Interface().(HttpResponse)
 	}
@@ -103,7 +103,31 @@ func (h *JsonBodyToRequestArgsObjectHandler) ServeHTTP(response http.ResponseWri
 		return
 	}
 
-	result, err := h.invoke(request, reflect.ValueOf(argsObject))
+	result, err := h.invoke(reflect.ValueOf(request), reflect.ValueOf(argsObject))
+
+	if err != nil {
+		Log.Error("error from handler %v: %v", h.handlerType.String(), err.Error())
+		response.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	result.WriteResponse(response)
+}
+
+func (h *JsonBodyToRequestArgsObjectHandler) ServeAuthHTTP(response http.ResponseWriter, request *AuthenticatedRequest) {
+	decoder := json.NewDecoder(request.Body)
+
+	argsObjectPtr := reflect.New(h.argsObjectType.Elem())
+	argsObject := argsObjectPtr.Interface()
+
+	if err := decoder.Decode(&argsObject); err != nil {
+		Log.Warning("invalid body for request object type %v: %v", h.argsObjectType.Name(), err.Error())
+		response.WriteHeader(http.StatusBadRequest)
+		response.Write([]byte(err.Error()))
+		return
+	}
+
+	result, err := h.invoke(reflect.ValueOf(request), reflect.ValueOf(argsObject))
 
 	if err != nil {
 		Log.Error("error from handler %v: %v", h.handlerType.String(), err.Error())

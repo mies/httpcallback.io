@@ -98,6 +98,20 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
 	c.Assert(usersResponse["id"], Equals, creationReponse["id"])
 }
 
+func (s *ApiIntegrationTestSuite) TestPostNewCallback(c *C) {
+	callback := Document{
+		"when": "2006-01-02T15:04:05Z",
+		"url":  "foobar",
+	}
+	data := callback.ToJson()
+	buf := bytes.NewBuffer(data)
+
+	response, err := http.Post("http://api.localhost:8000/callbacks", "application/json", buf)
+
+	c.Assert(err, IsNil)
+	c.Assert(response.StatusCode, Equals, http.StatusOK)
+}
+
 func (s *ApiIntegrationTestSuite) TestGetUserReturnsStatusNotFound(c *C) {
 	response, err := http.Get("http://api.localhost:8000/user/123")
 	c.Assert(err, IsNil)
