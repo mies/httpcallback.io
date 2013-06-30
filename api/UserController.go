@@ -31,7 +31,7 @@ type AddUserResponse struct {
 	AuthToken model.AuthenticationToken `json:"authToken"`
 }
 
-func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) (HttpResponse, error) {
+func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) (ActionResult, error) {
 	Log.Info("Handling AddUser request for new user with username: %s", args.Username)
 
 	creationDate := time.Now()
@@ -60,7 +60,7 @@ type GetUserRequestArgs struct {
 	UserId string
 }
 
-func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequestArgs) (HttpResponse, error) {
+func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequestArgs) (ActionResult, error) {
 	userId, err := model.ParseObjectId(args.UserId)
 	if err != nil {
 		fmt.Errorf("Invalid user id '%s': %s\nWill return 404 to user.", args.UserId, err.Error())

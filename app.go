@@ -72,7 +72,7 @@ func main() {
 
 	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing))
 	apiGetRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
-		var result api.HttpResponse
+		var result api.ActionResult
 		var err error
 
 		userId, ok := mux.Vars(req)["id"]
@@ -112,7 +112,7 @@ func main() {
 	}
 }
 
-func WriteResultOrError(w http.ResponseWriter, result api.HttpResponse, err error) {
+func WriteResultOrError(w http.ResponseWriter, result api.ActionResult, err error) {
 	if err != nil {
 		Log.Debug("Controller finished with error: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -121,7 +121,7 @@ func WriteResultOrError(w http.ResponseWriter, result api.HttpResponse, err erro
 	}
 }
 
-func HttpReponseWrapper(handler func(*http.Request) (api.HttpResponse, error)) http.HandlerFunc {
+func HttpReponseWrapper(handler func(*http.Request) (api.ActionResult, error)) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		fmt.Printf("[%v] %v\n", req.Method, req.URL)
 		result, err := handler(req)

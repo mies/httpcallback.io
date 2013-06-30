@@ -46,9 +46,9 @@ func validateHandler(handler interface{}) (bool, error) {
 			handlerType.In(1).String()))
 	}
 
-	// First out parameter must be HttpResponse
-	if !handlerType.Out(0).Implements(reflect.TypeOf((*HttpResponse)(nil)).Elem()) {
-		return false, errors.New(fmt.Sprintf("invalid argument type, first out parameter of type %v should implement api.HttpResponse interface",
+	// First out parameter must be ActionResult
+	if !handlerType.Out(0).Implements(reflect.TypeOf((*ActionResult)(nil)).Elem()) {
+		return false, errors.New(fmt.Sprintf("invalid argument type, first out parameter of type %v should implement api.ActionResult interface",
 			handlerType.Out(0).String()))
 	}
 
@@ -77,13 +77,13 @@ func NewJsonBodyRequestArgsObjectHandler(handler interface{}) *JsonBodyToRequest
 	return h
 }
 
-func (h *JsonBodyToRequestArgsObjectHandler) invoke(request reflect.Value, args reflect.Value) (HttpResponse, error) {
-	var result HttpResponse
+func (h *JsonBodyToRequestArgsObjectHandler) invoke(request reflect.Value, args reflect.Value) (ActionResult, error) {
+	var result ActionResult
 	var err error
 
 	results := h.handlerValue.Call([]reflect.Value{request, args})
 	if !results[0].IsNil() {
-		result = results[0].Interface().(HttpResponse)
+		result = results[0].Interface().(ActionResult)
 	}
 	if !results[1].IsNil() {
 		err = results[1].Interface().(error)

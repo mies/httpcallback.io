@@ -65,7 +65,7 @@ func TestNewingPanicsOnWrongOutParameterCount(t *testing.T) {
 func TestNewingPanicsOnWrongFirstInParameterType(t *testing.T) {
 	t.Skipf("Temporary disble first parameter check")
 
-	ok, err := validateHandler(func(s *string, args *RequestArgs) (HttpResponse, error) {
+	ok, err := validateHandler(func(s *string, args *RequestArgs) (ActionResult, error) {
 		return nil, nil
 	})
 
@@ -84,7 +84,7 @@ func TestNewingPanicsOnWrongFirstInParameterType(t *testing.T) {
 }
 
 func TestNewingPanicsOnWrongSecondInParameterTypeNotPtr(t *testing.T) {
-	ok, err := validateHandler(func(req *http.Request, args RequestArgs) (HttpResponse, error) {
+	ok, err := validateHandler(func(req *http.Request, args RequestArgs) (ActionResult, error) {
 		return nil, nil
 	})
 
@@ -103,7 +103,7 @@ func TestNewingPanicsOnWrongSecondInParameterTypeNotPtr(t *testing.T) {
 }
 
 func TestNewingPanicsOnWrongSecondInParameterTypeNotStruct(t *testing.T) {
-	ok, err := validateHandler(func(req *http.Request, args *func()) (HttpResponse, error) {
+	ok, err := validateHandler(func(req *http.Request, args *func()) (ActionResult, error) {
 		return nil, nil
 	})
 
@@ -160,7 +160,7 @@ func TestNewingPanicsOnWrongSecondOutParameterTypeNotImplementingError(t *testin
 }
 
 func TestNewJsonBodyRequestArgsObjectHandlerSetType(t *testing.T) {
-	h := NewJsonBodyRequestArgsObjectHandler(func(req *http.Request, args *RequestArgs) (HttpResponse, error) {
+	h := NewJsonBodyRequestArgsObjectHandler(func(req *http.Request, args *RequestArgs) (ActionResult, error) {
 		return nil, nil
 	})
 
