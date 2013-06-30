@@ -28,8 +28,7 @@ type AuthenticationHandler struct {
 // Whenever the Authenticator returns an error it will be logged and a
 // StatusInternalServerError will be send to the client.
 func (h *AuthenticationHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
-	username := request.URL.Query().Get("auth_username")
-	token := request.URL.Query().Get("auth_token")
+	username, token := GetAuthorizationInfoFromRequest(request)
 
 	// Validate whether we received authentication information.
 	if username == "" || token == "" {
@@ -43,14 +42,17 @@ func (h *AuthenticationHandler) ServeHTTP(response http.ResponseWriter, request 
 		return
 	}
 
+	// Do actual authentication.
 	user, err := h.authenticator.Authenticate(username, token)
 
+	// Did the authentication process fail?
 	if err != nil {
 		Log.Error("Unable to authenticate request: %v", err.Error())
 		response.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// Did the authorization information resolve a user?
 	if user == nil {
 		Log.Warning("Not authenticated! User not found by username=%v and token=<hidden>", username)
 
@@ -62,11 +64,12 @@ func (h *AuthenticationHandler) ServeHTTP(response http.ResponseWriter, request 
 		return
 	}
 
+	// Request was authenticated successfully, set information and call
+	// actual handler.
 	authRequest := &AuthenticatedRequest{
 		Request:  request,
 		UserId:   user.UserId,
 		Username: user.Username,
 	}
-
 	h.Handler(response, authRequest)
 }
