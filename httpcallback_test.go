@@ -14,5 +14,5 @@ func Test(t *testing.T) {
 // Setup the test suite
 var _ = Suite(&tests.ApiIntegrationTestSuite{
 	ProcessFilename: "httpcallback.io",
-	ApiBaseUrl:      "http://api.localhost:8000",
+	ApiBaseUrl:      "http://localhost:8000",
 })

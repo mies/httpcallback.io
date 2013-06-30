@@ -62,12 +62,8 @@ func main() {
 	address := fmt.Sprintf("%s:%v", *Address, *Port)
 	router := mux.NewRouter()
 
-	siteRouter := router.Host(config.Host.Hostname).Subrouter()
-	siteRouter.Handle("/", http.FileServer(http.Dir("./site")))
-
-	apiRouter := router.Host("api." + config.Host.Hostname).Subrouter()
-	apiPostRouter := apiRouter.Methods("POST").Subrouter()
-	apiGetRouter := apiRouter.Methods("GET").Subrouter()
+	apiPostRouter := router.Methods("POST").Subrouter()
+	apiGetRouter := router.Methods("GET").Subrouter()
 
 	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing))
 	apiGetRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
