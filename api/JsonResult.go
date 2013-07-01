@@ -5,6 +5,15 @@ import (
 	"net/http"
 )
 
+// A simple Json Document type which you can
+// use in the following way:
+//
+// doc := JsonDocument {
+//   "Foo": "Bar",
+//   "Baz": 42,
+// }
+type JsonDocument map[string]interface{}
+
 type JsonResponse struct {
 	Data []byte
 }

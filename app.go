@@ -64,8 +64,12 @@ func main() {
 
 	apiPostRouter := router.Methods("POST").Subrouter()
 	apiGetRouter := router.Methods("GET").Subrouter()
-
-	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.GetPing))
+	apiGetRouter.HandleFunc("/", HttpReponseWrapper(service.Home.HandleIndex))
+	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.Home.HandlePing))
+	apiGetRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
+		result, err := service.Callbacks.ListCallbacks(req)
+		WriteResultOrError(response, result, err)
+	}))
 	apiGetRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
 		var result api.ActionResult
 		var err error
@@ -89,11 +93,6 @@ func main() {
 	apiPostRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		addUserHandler.ServeHTTP(response, req)
 	})
-
-	apiGetRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
-		result, err := service.Callbacks.ListCallbacks(req)
-		WriteResultOrError(response, result, err)
-	}))
 
 	addCallbackHandler := api.NewJsonBodyRequestArgsObjectHandler(service.Callbacks.NewCallback)
 

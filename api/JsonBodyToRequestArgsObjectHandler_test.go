@@ -121,7 +121,7 @@ func TestNewingPanicsOnWrongSecondInParameterTypeNotStruct(t *testing.T) {
 	}
 }
 
-func TestNewingPanicsOnWrongFirstOutParameterTypeNotImplementingHttpResponse(t *testing.T) {
+func TestNewingPanicsOnWrongFirstOutParameterTypeNotImplementingActionResult(t *testing.T) {
 	ok, err := validateHandler(func(req *http.Request, args *RequestArgs) (*int, error) {
 		return nil, nil
 	})
@@ -134,14 +134,14 @@ func TestNewingPanicsOnWrongFirstOutParameterTypeNotImplementingHttpResponse(t *
 		t.Fatal("Wrong hander should return error")
 	}
 
-	expectedError := fmt.Sprint("invalid argument type, first out parameter of type *int should implement api.HttpResponse interface")
+	expectedError := fmt.Sprint("invalid argument type, first out parameter of type *int should implement api.ActionResult interface")
 	if !strings.Contains(err.Error(), expectedError) {
 		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
 	}
 }
 
 func TestNewingPanicsOnWrongSecondOutParameterTypeNotImplementingError(t *testing.T) {
-	ok, err := validateHandler(func(req *http.Request, args *RequestArgs) (HttpResponse, *string) {
+	ok, err := validateHandler(func(req *http.Request, args *RequestArgs) (ActionResult, *string) {
 		return nil, nil
 	})
 

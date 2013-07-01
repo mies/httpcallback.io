@@ -36,8 +36,10 @@ func (h *AuthenticationHandler) ServeHTTP(response http.ResponseWriter, request 
 
 		if h.NotFoundOnUnauthorized {
 			response.WriteHeader(http.StatusNotFound)
+			response.Write([]byte("Not found"))
 		} else {
 			response.WriteHeader(http.StatusUnauthorized)
+			response.Write([]byte("Not authorized"))
 		}
 		return
 	}

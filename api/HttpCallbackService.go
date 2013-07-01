@@ -6,7 +6,7 @@ import (
 
 type HttpCallbackService struct {
 	StartTime time.Time
-
+	Home      *HomeController
 	Callbacks *CallbackController
 	Users     *UserController
 }
@@ -14,6 +14,7 @@ type HttpCallbackService struct {
 func NewService(callbackCtlr *CallbackController, usersCtlr *UserController) *HttpCallbackService {
 	return &HttpCallbackService{
 		StartTime: time.Now(),
+		Home:      NewHomeController(),
 		Callbacks: callbackCtlr,
 		Users:     usersCtlr,
 	}

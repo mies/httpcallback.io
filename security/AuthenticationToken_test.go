@@ -1,11 +1,12 @@
 package security
 
 import (
+	"github.com/pjvds/httpcallback.io/model"
 	"testing"
 )
 
 func TestNewAuthToken(t *testing.T) {
-	var emptyToken AuthenticationToken
+	var emptyToken model.AuthenticationToken
 	newToken := NewAuthToken()
 	if newToken == emptyToken {
 		t.Error("New token should not be empty")
