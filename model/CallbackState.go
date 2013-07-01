@@ -16,7 +16,7 @@ type Callback struct {
 }
 
 type CallbackEntry struct {
-	Id   ObjectId  `bson:"_id,omitempty json:"id"`
+	Id   ObjectId  `bson:"_id,omitempty" json:"id"`
 	When time.Time `json:"when"`
 }
 
