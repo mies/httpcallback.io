@@ -45,10 +45,11 @@ func (r *MgoCallbackRepository) GetNextAndBumpNextAttemptTimeStamp(duration time
 }
 
 func (r *MgoCallbackRepository) AddAttemptToCallback(callbackId model.ObjectId, attempt *model.CallbackAttempt) error {
-
 	return r.database.C("Callbacks").UpdateId(callbackId, bson.M{
 		"$push": bson.M{"attempts": attempt},
-		"$inc":  1})
+		"$inc":  bson.M{"attemptcount": 1},
+		"$set":  bson.M{"finished": attempt.Success},
+	})
 }
 
 func (r *MgoCallbackRepository) List(userId model.ObjectId) ([]*model.Callback, error) {
