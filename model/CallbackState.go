@@ -5,16 +5,18 @@ import (
 )
 
 type Callback struct {
-	Id           ObjectId           `json:"id"`
-	UserId       ObjectId           `json:"userId"`
-	CreatedAt    time.Time          `json:"createAt"`
-	Request      *CallbackRequest   `json:"request"`
-	Attempts     []*CallbackAttempt `json:"attempts"`
-	AttemptCount int                `json:"attemptCount"`
+	Id                   ObjectId           `bson:"_id,omitempty" json:"id"`
+	UserId               ObjectId           `json:"userId"`
+	CreatedAt            time.Time          `json:"createAt"`
+	Request              *CallbackRequest   `json:"request"`
+	Attempts             []*CallbackAttempt `json:"attempts"`
+	AttemptCount         int                `json:"attemptCount"`
+	NextAttemptTimeStamp time.Time          `json:"nextAttemptTimestamp"`
+	Finished             bool               `json:"finished"`
 }
 
 type CallbackEntry struct {
-	Id   ObjectId  `json:"id"`
+	Id   ObjectId  `bson:"_id,omitempty json:"id"`
 	When time.Time `json:"when"`
 }
 
@@ -22,7 +24,6 @@ type CallbackAttempt struct {
 	Id        ObjectId
 	Timestamp time.Time
 	Success   bool
-	Message   string
 	Response  *HttpResponseInfo
 }
 
@@ -34,9 +35,10 @@ type HttpResponseInfo struct {
 
 func NewCallback(id ObjectId, userId ObjectId, request *CallbackRequest) *Callback {
 	return &Callback{
-		Id:        id,
-		UserId:    userId,
-		CreatedAt: time.Now(),
-		Request:   request,
+		Id:                   id,
+		UserId:               userId,
+		CreatedAt:            time.Now(),
+		Request:              request,
+		NextAttemptTimeStamp: request.When,
 	}
 }

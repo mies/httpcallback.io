@@ -33,12 +33,14 @@ func (r *MgoUserRepository) Get(id model.ObjectId) (*model.User, error) {
 func (r *MgoUserRepository) GetByAuth(username string, authToken model.AuthenticationToken) (*model.UserAuthInfo, error) {
 	query := r.database.C("Users").Find(bson.M{"username": username, "authtoken": authToken}).Select(bson.M{"id": 1, "username": 1})
 	var result bson.M
-	err := query.One(&result)
+	if err := query.One(&result); err != nil {
+		return nil, err
+	}
 
 	return &model.UserAuthInfo{
 		UserId:   model.ObjectId(result["id"].(string)),
 		Username: result["username"].(string),
-	}, err
+	}, nil
 }
 
 func (r *MgoUserRepository) List() ([]*model.User, error) {

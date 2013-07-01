@@ -26,7 +26,7 @@ type AddUserRequest struct {
 }
 
 type AddUserResponse struct {
-	Id        model.ObjectId            `json:"id"`
+	Id        model.ObjectId            `bson:"_id,omitempty json:"id"`
 	Username  string                    `json:"username"`
 	AuthToken model.AuthenticationToken `json:"authToken"`
 }
@@ -78,7 +78,7 @@ func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequestAr
 	}
 
 	return JsonResult(struct {
-		Id        model.ObjectId `json:"id"`
+		Id        model.ObjectId `bson:"_id,omitempty json:"id"`
 		Username  string         `json:"username"`
 		CreatedAt time.Time      `json:"createdAt"`
 	}{Id: user.Id,

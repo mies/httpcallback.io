@@ -9,6 +9,7 @@ import (
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/data/memory"
 	"github.com/pjvds/httpcallback.io/data/mongo"
+	"github.com/pjvds/httpcallback.io/worker"
 	"net/http"
 	"os"
 )
@@ -99,6 +100,10 @@ func main() {
 	apiPostRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
 		addCallbackHandler.ServeAuthHTTP(response, req)
 	}))
+
+	w := worker.NewCallbackWorker(repositoryFactory.CreateCallbackRepository())
+	w.Start()
+	Log.Notice("Started worker!")
 
 	Log.Info("httpcallback.io now hosting at %s\n", address)
 	if err := http.ListenAndServe(address, handlers.LoggingHandler(os.Stdout, router)); err != nil {

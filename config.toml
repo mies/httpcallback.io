@@ -2,6 +2,6 @@
 Hostname = "localhost"
 
 [Mongo]
-UseMongo = false
+UseMongo = true
 ServerUrl = "mongodb://foo:bar@dharma.mongohq.com:10039/httpcallback"
 DatabaseName = "httpcallback"

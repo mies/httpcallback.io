@@ -24,7 +24,7 @@ func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *model.
 	}
 
 	return JsonResult(&struct {
-		Id model.ObjectId `json:"id"`
+		Id model.ObjectId `bson:"_id,omitempty json:"id"`
 	}{
 		Id: callback.Id,
 	})

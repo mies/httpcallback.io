@@ -100,13 +100,14 @@ func (h *JsonBodyToRequestArgsObjectHandler) ServeHTTP(response http.ResponseWri
 
 	if err := decoder.Decode(&argsObject); err != nil {
 		Log.Warning("invalid body for request object type %v: %v", h.argsObjectType.Name(), err.Error())
+
+		// TODO: Shouldn't this, the body, be json?
 		response.WriteHeader(http.StatusBadRequest)
 		response.Write([]byte(err.Error()))
 		return
 	}
 
 	result, err := h.invoke(reflect.ValueOf(request), reflect.ValueOf(argsObject))
-
 	if err != nil {
 		Log.Error("error from handler %v: %v", h.handlerType.String(), err.Error())
 		response.WriteHeader(http.StatusInternalServerError)
