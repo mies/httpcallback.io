@@ -16,7 +16,8 @@ func TestNewAuthToken(t *testing.T) {
 func TestTwoNewAuthTokensAreNotTheSame(t *testing.T) {
 	newTokenA := NewAuthToken()
 	newTokenB := NewAuthToken()
-	if newTokenA != newTokenB {
-		t.Error("New tokens should not be the same")
+	if newTokenA == newTokenB {
+		t.Errorf("New tokens should not be the same:\n\ttoken a: %s\n\ttoken b: %s",
+			newTokenA, newTokenB)
 	}
 }
