@@ -29,7 +29,7 @@ func (s *ApiIntegrationTestSuite) SetUpSuite(c *C) {
 	}
 
 	// Allow process to warm up
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(2500 * time.Millisecond)
 	s.process = process
 
 	c.Logf("Started %s, pid %v", s.ProcessFilename, process.Pid)
