@@ -54,7 +54,7 @@ func (h *AuthenticationHandler) ServeHTTP(response http.ResponseWriter, request 
 		return
 	}
 
-	// Did the authorization information resolve a user?
+	// Did the authenticator gave us a user?
 	if user == nil {
 		Log.Warning("Not authenticated! User not found by username=%v and token=<hidden>", username)
 
