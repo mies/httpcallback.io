@@ -14,6 +14,8 @@ type CallbackWorker struct {
 	startStopLock sync.Mutex
 	runningLock   sync.Mutex
 
+	pollingTime time.Duration
+
 	// Set to true by Start(), set to false at doWork() ending
 	isRunning bool
 
@@ -21,10 +23,11 @@ type CallbackWorker struct {
 	stopped sync.WaitGroup
 }
 
-func NewCallbackWorker(callbackRepository data.CallbackRepository) *CallbackWorker {
+func NewCallbackWorker(pollingTime time.Duration, callbackRepository data.CallbackRepository) *CallbackWorker {
 	return &CallbackWorker{
 		callbackRepository: callbackRepository,
 		stop:               make(chan bool),
+		pollingTime:        pollingTime,
 	}
 }
 
@@ -59,7 +62,7 @@ func (worker *CallbackWorker) doWork() {
 		select {
 		case <-worker.stop:
 			Log.Notice("Stopping worker")
-		case <-time.After(50 * time.Millisecond):
+		case <-time.After(worker.pollingTime):
 			callback, err := worker.callbackRepository.GetNextAndBumpNextAttemptTimeStamp(1 * time.Minute)
 			if err != nil {
 				Log.Error("Error while getting next callback: %v", err.Error())

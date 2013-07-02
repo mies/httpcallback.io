@@ -12,6 +12,7 @@ import (
 	"github.com/pjvds/httpcallback.io/worker"
 	"net/http"
 	"os"
+	"time"
 )
 
 var (
@@ -101,7 +102,7 @@ func main() {
 		addCallbackHandler.ServeAuthHTTP(response, req)
 	}))
 
-	w := worker.NewCallbackWorker(repositoryFactory.CreateCallbackRepository())
+	w := worker.NewCallbackWorker(100*time.Millisecond, repositoryFactory.CreateCallbackRepository())
 	w.Start()
 	Log.Notice("Started worker!")
 
