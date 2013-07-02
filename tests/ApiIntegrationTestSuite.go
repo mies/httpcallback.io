@@ -106,7 +106,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
 func (s *ApiIntegrationTestSuite) TestPostNewCallbackUnauthorized(c *C) {
 	callback := Document{
 		"when": "2006-01-02T15:04:05Z",
-		"url":  "foobar",
+		"url":  "http://google.com/",
 	}
 	data := callback.ToJson()
 	buf := bytes.NewBuffer(data)
@@ -131,7 +131,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewCallbackSuccess(c *C) {
 
 	callback := Document{
 		"when": "2006-01-02T15:04:05Z",
-		"url":  "foobar",
+		"url":  "http://google.com/",
 	}
 	data = callback.ToJson()
 	buf = bytes.NewBuffer(data)

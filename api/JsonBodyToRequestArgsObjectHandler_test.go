@@ -11,7 +11,7 @@ import (
 type RequestArgs struct{}
 
 func TestNewingPanicsOnWrongKind(t *testing.T) {
-	ok, err := validateHandler("foobar")
+	ok, err := validateHandler("iamastringnotahandler")
 
 	if ok {
 		t.Error("Handler of wrong kind should not be valid")
