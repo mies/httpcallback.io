@@ -67,6 +67,7 @@ func TestJsonResultSerializesCorrectJson(t *testing.T) {
 		t.Fatalf("Invalid json in body: %v", err.Error())
 	}
 	if resultDoc["message"] != "foobar" {
-		t.Fatalf("Wrong value received in result document:\n\tactual: %v\n\texpected: %v", resultDoc["message"], "foobar")
+		t.Fatalf("Wrong value received in result document:\n\tactual: %v\n\texpected: %v",
+			resultDoc["message"], "foobar")
 	}
 }
