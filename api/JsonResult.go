@@ -15,7 +15,7 @@ import (
 type JsonDocument map[string]interface{}
 
 type JsonResponse struct {
-	Data []byte
+	data []byte
 }
 
 func JsonResult(result interface{}) (*JsonResponse, error) {
@@ -25,12 +25,12 @@ func JsonResult(result interface{}) (*JsonResponse, error) {
 		return nil, err
 	} else {
 		return &JsonResponse{
-			Data: data,
+			data: data,
 		}, nil
 	}
 }
 
 func (j *JsonResponse) WriteResponse(response http.ResponseWriter) {
 	response.Header().Set("Content-Type", "application/json")
-	response.Write(j.Data)
+	response.Write(j.data)
 }
