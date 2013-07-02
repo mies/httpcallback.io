@@ -30,6 +30,8 @@ func JsonResult(result interface{}) (*JsonResponse, error) {
 	}
 }
 
+// Writes the json to the HttpResponse stream. It also sets
+// the Content-Type header value to application/json.
 func (j *JsonResponse) WriteResponse(response http.ResponseWriter) {
 	response.Header().Set("Content-Type", "application/json")
 	response.Write(j.data)
