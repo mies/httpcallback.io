@@ -5,6 +5,9 @@ import (
 	"regexp"
 )
 
+// Reads authentication information from http request. It reads it from the
+// header, or if not present, from the query string. If that also isn't present
+// empty values are returned.
 func GetAuthorizationInfoFromRequest(request *http.Request) (username string, token string) {
 	authHeader := request.Header.Get("Authorization")
 	if authHeader != "" {

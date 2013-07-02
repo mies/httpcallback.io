@@ -7,6 +7,20 @@ import (
 	"testing"
 )
 
+func TestGetAuthorizationInfoFromRequestReturnsEmptyValuesWhenNoInfoIsAvailable(t *testing.T) {
+	request, _ := http.NewRequest("POST", "http://httpcallback.io/users", nil)
+	username, token := GetAuthorizationInfoFromRequest(request)
+
+	if username != "" {
+		t.Errorf("expected empty value for username, but got: %v", username)
+	}
+
+	if token != "" {
+		t.Errorf("expected empty value for token, but got: %v", token)
+	}
+
+}
+
 func TestGetAuthorizationInfoFromRequestReadsFromHeader(t *testing.T) {
 	username := "pjvds"
 	token := "token"
