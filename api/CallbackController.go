@@ -15,7 +15,7 @@ func NewCallbackController(callbacks data.CallbackRepository) *CallbackControlle
 	}
 }
 
-func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *model.CallbackRequest) (*JsonResponse, error) {
+func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *model.CallbackRequest) (ActionResult, error) {
 	id := model.NewObjectId()
 	callback := model.NewCallback(id, r.UserId, args)
 	err := ctr.callbacks.Add(callback)
@@ -30,7 +30,7 @@ func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *model.
 	})
 }
 
-func (ctr *CallbackController) ListCallbacks(r *AuthenticatedRequest) (*JsonResponse, error) {
+func (ctr *CallbackController) ListCallbacks(r *AuthenticatedRequest) (ActionResult, error) {
 	callbacks, err := ctr.callbacks.List(r.UserId)
 	if err != nil {
 		return nil, err
