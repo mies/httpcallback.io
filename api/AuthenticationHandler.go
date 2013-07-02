@@ -68,10 +68,6 @@ func (h *AuthenticationHandler) ServeHTTP(response http.ResponseWriter, request 
 
 	// Request was authenticated successfully, set information and call
 	// actual handler.
-	authRequest := &AuthenticatedRequest{
-		Request:  request,
-		UserId:   user.UserId,
-		Username: user.Username,
-	}
+	authRequest := NewAuthenticatedRequest(request, user.UserId, user.Username)
 	h.Handler(response, authRequest)
 }
