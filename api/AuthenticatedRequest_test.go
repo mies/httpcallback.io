@@ -38,7 +38,7 @@ func (s *AuthenticatedRequestTestSuite) TestAuthenticatedRequestCtorPanicsOnNilR
 func (s *AuthenticatedRequestTestSuite) TestAuthenticatedRequestCtorPanicsOnEmptyUsername(c *C) {
 	request := &http.Request{}
 	userId := model.NewObjectId()
-	username := ""
+	var username string
 
 	c.Assert(func() {
 		NewAuthenticatedRequest(request, userId, username)
