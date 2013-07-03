@@ -14,6 +14,17 @@ type AuthenticatedRequestTestSuite struct{}
 func (s *AuthenticatedRequestTestSuite) SetUpSuite(c *C) {
 }
 
+func (s *AuthenticatedRequestTestSuite) TestAuthenticatedRequestCtorSetsCorrectFields(c *C) {
+	request := &http.Request{}
+	userId := model.NewObjectId()
+	username := "username"
+
+	sut := NewAuthenticatedRequest(request, userId, username)
+	c.Assert(sut.Request, Equals, request)
+	c.Assert(sut.UserId, Equals, userId)
+	c.Assert(sut.Username, Equals, username)
+}
+
 func (s *AuthenticatedRequestTestSuite) TestAuthenticatedRequestCtorPanicsOnNilRequest(c *C) {
 	request := (*http.Request)(nil)
 	userId := model.NewObjectId()
