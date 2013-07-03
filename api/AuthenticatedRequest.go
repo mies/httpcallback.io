@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// A AuthenticatedRequest represents an HTTP request received by the server
+// An AuthenticatedRequest represents an HTTP request received by the server
 // that has been authenticated against. Only request that are succesfully
 // authenticated will make it into an AuthenticatedRequest.
 type AuthenticatedRequest struct {

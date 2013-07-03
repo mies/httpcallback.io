@@ -18,7 +18,6 @@ func TestGetAuthorizationInfoFromRequestReturnsEmptyValuesWhenNoInfoIsAvailable(
 	if token != "" {
 		t.Errorf("expected empty value for token, but got: %v", token)
 	}
-
 }
 
 func TestGetAuthorizationInfoFromRequestReadsFromHeader(t *testing.T) {
