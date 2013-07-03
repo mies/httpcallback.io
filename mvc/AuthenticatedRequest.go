@@ -1,4 +1,4 @@
-package api
+package mvc
 
 import (
 	"github.com/pjvds/httpcallback.io/model"

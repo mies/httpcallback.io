@@ -1,4 +1,4 @@
-package api
+package mvc
 
 import (
 	"fmt"
@@ -96,7 +96,7 @@ func TestNewingPanicsOnWrongSecondInParameterTypeNotPtr(t *testing.T) {
 		t.Fatal("Wrong hander should return error")
 	}
 
-	expectedError := fmt.Sprint("invalid argument type, second argument should be a pointer to an struct, not api.RequestArgs")
+	expectedError := fmt.Sprint("invalid argument type, second argument should be a pointer to an struct, not mvc.RequestArgs")
 	if !strings.Contains(err.Error(), expectedError) {
 		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
 	}
@@ -134,7 +134,7 @@ func TestNewingPanicsOnWrongFirstOutParameterTypeNotImplementingActionResult(t *
 		t.Fatal("Wrong hander should return error")
 	}
 
-	expectedError := fmt.Sprint("invalid argument type, first out parameter of type *int should implement api.ActionResult interface")
+	expectedError := fmt.Sprint("invalid argument type, first out parameter of type *int should implement mvc.ActionResult interface")
 	if !strings.Contains(err.Error(), expectedError) {
 		t.Errorf("Unexpected error message: \n\tActual: %v\n\tExpected: %v", err.Error(), expectedError)
 	}

@@ -1,4 +1,4 @@
-package api
+package mvc
 
 import (
 	"encoding/json"
@@ -48,7 +48,7 @@ func validateHandler(handler interface{}) (bool, error) {
 
 	// First out parameter must be ActionResult
 	if !handlerType.Out(0).Implements(reflect.TypeOf((*ActionResult)(nil)).Elem()) {
-		return false, errors.New(fmt.Sprintf("invalid argument type, first out parameter of type %v should implement api.ActionResult interface",
+		return false, errors.New(fmt.Sprintf("invalid argument type, first out parameter of type %v should implement mvc.ActionResult interface",
 			handlerType.Out(0).String()))
 	}
 
