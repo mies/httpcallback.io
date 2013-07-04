@@ -1,6 +1,7 @@
 package api
 
 import (
+	. "github.com/pjvds/httpcallback.io/api/requests"
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/model"
 	. "github.com/pjvds/httpcallback.io/mvc"
@@ -16,11 +17,11 @@ func NewCallbackController(callbacks data.CallbackRepository) *CallbackControlle
 	}
 }
 
-func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *model.CallbackRequest) ActionResult {
-	id := model.NewObjectId()
-	callback := model.NewCallback(id, r.UserId, args)
-	err := ctr.callbacks.Add(callback)
-	if err != nil {
+func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *NewCallbackRequest) ActionResult {
+	callback := model.NewCallback(r.UserId, args.Url, args.When)
+
+	if err := ctr.callbacks.Add(callback); err != nil {
+		Log.Error("Unable to add callback to repository: %v", err.Error())
 		return ErrorResult(err)
 	}
 
@@ -33,9 +34,11 @@ func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *model.
 
 func (ctr *CallbackController) ListCallbacks(r *AuthenticatedRequest) ActionResult {
 	callbacks, err := ctr.callbacks.List(r.UserId)
+
 	if err != nil {
+		Log.Error("Error while getting callback for user '%v': %v", r.UserId, err.Error())
 		return ErrorResult(err)
-	} else {
-		return JsonResult(callbacks)
 	}
+
+	return JsonResult(callbacks)
 }

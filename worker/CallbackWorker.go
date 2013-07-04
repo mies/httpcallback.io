@@ -104,7 +104,7 @@ func (worker *CallbackWorker) executeCallback(callback *model.Callback, workers 
 		Id:        model.NewObjectId(),
 		Timestamp: time.Now(),
 		Success:   response.StatusCode == http.StatusOK,
-		Response: &model.HttpResponseInfo{
+		Response: &model.CallbackHttpResponseInfo{
 			HttpStatusCode: response.StatusCode,
 			HttpStatusText: response.Status,
 			ResponseTime:   responseTime,

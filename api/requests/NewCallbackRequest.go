@@ -1,10 +1,10 @@
-package model
+package request
 
 import (
 	"time"
 )
 
-type CallbackRequest struct {
+type NewCallbackRequest struct {
 	When time.Time `json:"when"`
 	Url  string    `json:"url"`
 }

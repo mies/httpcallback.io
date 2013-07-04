@@ -15,8 +15,20 @@ type Callback struct {
 	Finished             bool               `json:"finished"`
 }
 
-type CallbackEntry struct {
-	Id   ObjectId  `bson:"_id,omitempty" json:"id"`
+func NewCallback(userId ObjectId, url string, when time.Time) *Callback {
+	return &Callback{
+		Id:        NewObjectId(),
+		UserId:    userId,
+		CreatedAt: time.Now(),
+		Request: &CallbackRequest{
+			Url:  url,
+			When: when,
+		},
+	}
+}
+
+type CallbackRequest struct {
+	Url  string    `json:"url"`
 	When time.Time `json:"when"`
 }
 
@@ -24,21 +36,11 @@ type CallbackAttempt struct {
 	Id        ObjectId
 	Timestamp time.Time
 	Success   bool
-	Response  *HttpResponseInfo
+	Response  *CallbackHttpResponseInfo
 }
 
-type HttpResponseInfo struct {
+type CallbackHttpResponseInfo struct {
 	HttpStatusCode int
 	HttpStatusText string
 	ResponseTime   time.Duration
-}
-
-func NewCallback(id ObjectId, userId ObjectId, request *CallbackRequest) *Callback {
-	return &Callback{
-		Id:                   id,
-		UserId:               userId,
-		CreatedAt:            time.Now(),
-		Request:              request,
-		NextAttemptTimeStamp: request.When,
-	}
 }
