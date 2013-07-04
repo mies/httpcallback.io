@@ -2,6 +2,7 @@ package mvc
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -18,15 +19,19 @@ type JsonResponse struct {
 	data []byte
 }
 
-func JsonResult(result interface{}) (*JsonResponse, error) {
+// Marshals the result object to a json string
+// that will be written to the body of the response.
+// This function panics if the result could not be
+// marshalled.
+func JsonResult(result interface{}) *JsonResponse {
 	data, err := json.Marshal(result)
 	if err != nil {
-		Log.Error("Unable to marshal object (%+v) to json: %s", result, err.Error())
-		return nil, err
+		message := fmt.Sprintf("Unable to marshal object (%+v) to json: %s", result, err.Error())
+		panic(message)
 	} else {
 		return &JsonResponse{
 			data: data,
-		}, nil
+		}
 	}
 }
 

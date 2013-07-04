@@ -16,7 +16,7 @@ func NewHomeController() *HomeController {
 	}
 }
 
-func (c *HomeController) HandleIndex(request *http.Request) (ActionResult, error) {
+func (c *HomeController) HandleIndex(request *http.Request) ActionResult {
 	return JsonResult(&JsonDocument{
 		"message": "welcome!",
 		"uptime":  time.Now().Sub(c.StartTime).String(),
@@ -27,7 +27,7 @@ type PingResponse struct {
 	Message string `json:"message"`
 }
 
-func (c *HomeController) HandlePing(req *http.Request) (ActionResult, error) {
+func (c *HomeController) HandlePing(req *http.Request) ActionResult {
 	return JsonResult(&PingResponse{
 		Message: "pong",
 	})

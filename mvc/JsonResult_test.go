@@ -37,7 +37,7 @@ func (r *ResponseRecorder) Write(content []byte) (int, error) {
 }
 
 func TestJsonResultAddsContentTypeHeaderValue(t *testing.T) {
-	result, _ := JsonResult(JsonDocument{
+	result := JsonResult(JsonDocument{
 		"message": "foobar",
 	})
 
@@ -55,7 +55,7 @@ func TestJsonResultAddsContentTypeHeaderValue(t *testing.T) {
 }
 
 func TestJsonResultSerializesCorrectJson(t *testing.T) {
-	result, _ := JsonResult(JsonDocument{
+	result := JsonResult(JsonDocument{
 		"message": "foobar",
 	})
 

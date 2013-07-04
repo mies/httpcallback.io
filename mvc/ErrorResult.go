@@ -8,10 +8,10 @@ type ErrorResultState struct {
 	Error error
 }
 
-func ErrorResult(err error) (*ErrorResultState, error) {
+func ErrorResult(err error) *ErrorResultState {
 	return &ErrorResultState{
 		Error: err,
-	}, nil
+	}
 }
 
 func (r *ErrorResultState) WriteResponse(response http.ResponseWriter) {

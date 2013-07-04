@@ -32,7 +32,7 @@ type AddUserResponse struct {
 	AuthToken model.AuthenticationToken `json:"authToken"`
 }
 
-func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) (ActionResult, error) {
+func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) ActionResult {
 	Logger.Info("Handling AddUser request for new user with username: %s", args.Username)
 
 	creationDate := time.Now()
@@ -46,8 +46,8 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 	}
 
 	if err := ctr.users.Add(&newUser); err != nil {
-		fmt.Println("Unable to add new user. Error from repository:,", err)
-		return nil, err
+		Log.Error("Unable to add new user. Error from repository:,", err)
+		return ErrorResult(err)
 	}
 
 	return JsonResult(AddUserResponse{
@@ -61,21 +61,21 @@ type GetUserRequestArgs struct {
 	UserId string
 }
 
-func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequestArgs) (ActionResult, error) {
+func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequestArgs) ActionResult {
 	userId, err := model.ParseObjectId(args.UserId)
 	if err != nil {
 		fmt.Errorf("Invalid user id '%s': %s\nWill return 404 to user.", args.UserId, err.Error())
-		return NewHttpStatusCodeResult(http.StatusNotFound), nil
+		return NewHttpStatusCodeResult(http.StatusNotFound)
 	}
 
 	user, err := ctr.users.Get(userId)
 	if err != nil {
-		return nil, err
+		return ErrorResult(err)
 	}
 
 	if user == nil {
 		Logger.Debug("No user found with id '%s', returning 404 not found.", args.UserId)
-		return NewHttpStatusCodeResult(http.StatusNotFound), nil
+		return NewHttpStatusCodeResult(http.StatusNotFound)
 	}
 
 	return JsonResult(struct {

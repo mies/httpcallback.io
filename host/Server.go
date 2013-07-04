@@ -26,16 +26,11 @@ func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer 
 	apiGetRouter.HandleFunc("/", HttpReponseWrapper(service.Home.HandleIndex))
 	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.Home.HandlePing))
 	apiGetRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
-		result, err := service.Callbacks.ListCallbacks(req)
-		if err != nil {
-			result, _ = mvc.ErrorResult(err)
-		}
-
+		result := service.Callbacks.ListCallbacks(req)
 		result.WriteResponse(response)
 	}))
 	apiGetRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
 		var result mvc.ActionResult
-		var err error
 
 		userId, ok := mux.Vars(req)["id"]
 		if !ok {
@@ -47,11 +42,7 @@ func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer 
 			}
 
 			Log.Debug("Handing request to GetUser with %+v", requestArgs)
-			result, err = service.Users.GetUser(req, requestArgs)
-		}
-
-		if err != nil {
-			result, _ = mvc.ErrorResult(err)
+			result = service.Users.GetUser(req, requestArgs)
 		}
 
 		result.WriteResponse(response)
@@ -73,16 +64,10 @@ func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer 
 	}
 }
 
-func HttpReponseWrapper(handler func(*http.Request) (mvc.ActionResult, error)) http.HandlerFunc {
+func HttpReponseWrapper(handler func(*http.Request) mvc.ActionResult) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		fmt.Printf("[%v] %v\n", req.Method, req.URL)
-		result, err := handler(req)
-		req.Body.Close()
-
-		if err != nil {
-			result, _ = mvc.ErrorResult(err)
-		}
-
+		result := handler(req)
 		result.WriteResponse(res)
 	}
 }
