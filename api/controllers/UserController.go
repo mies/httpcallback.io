@@ -59,7 +59,7 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 	})
 }
 
-func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequestArgs) ActionResult {
+func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequest) ActionResult {
 	userId, err := model.ParseObjectId(args.UserId)
 	if err != nil {
 		fmt.Errorf("Invalid user id '%s': %s\nWill return 404 to user.", args.UserId, err.Error())

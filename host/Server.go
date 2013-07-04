@@ -39,7 +39,7 @@ func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer 
 			Log.Warning("id parameter not given, return 404 not found.")
 			result = api.NewHttpStatusCodeResult(http.StatusNotFound)
 		} else {
-			requestArgs := &messages.GetUserRequestArgs{
+			requestArgs := &messages.GetUserRequest{
 				UserId: userId,
 			}
 

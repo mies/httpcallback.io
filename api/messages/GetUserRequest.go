@@ -1,5 +1,7 @@
 package messages
 
-type GetUserRequestArgs struct {
+import ()
+
+type GetUserRequest struct {
 	UserId string
 }
