@@ -4,4 +4,4 @@ import (
 	"github.com/op/go-logging"
 )
 
-var Logger = logging.MustGetLogger("controllers")
+var log = logging.MustGetLogger("controllers")

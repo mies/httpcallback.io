@@ -35,7 +35,7 @@ type AddUserResponse struct {
 }
 
 func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) ActionResult {
-	Logger.Info("Handling AddUser request for new user with username: %s", args.Username)
+	log.Info("Handling AddUser request for new user with username: %s", args.Username)
 
 	creationDate := time.Now()
 
@@ -72,7 +72,7 @@ func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequest) 
 	}
 
 	if user == nil {
-		Logger.Debug("No user found with id '%s', returning 404 not found.", args.UserId)
+		log.Debug("No user found with id '%s', returning 404 not found.", args.UserId)
 		return api.NewHttpStatusCodeResult(http.StatusNotFound)
 	}
 
