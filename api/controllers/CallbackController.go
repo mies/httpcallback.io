@@ -1,4 +1,4 @@
-package api
+package controllers
 
 import (
 	. "github.com/pjvds/httpcallback.io/api/messages"

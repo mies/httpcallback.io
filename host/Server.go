@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/pjvds/httpcallback.io/api"
+	"github.com/pjvds/httpcallback.io/api/controllers"
+	"github.com/pjvds/httpcallback.io/api/messages"
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/mvc"
 	"net/http"
@@ -14,19 +16,19 @@ type HttpCallbackApiServer struct {
 }
 
 func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer {
-	callbacksController := api.NewCallbackController(repositoryFactory.CreateCallbackRepository())
-	usersController := api.NewUserController(repositoryFactory.CreateUserRepository())
-	service := api.NewService(callbacksController, usersController)
+	callbacksController := controllers.NewCallbackController(repositoryFactory.CreateCallbackRepository())
+	usersController := controllers.NewUserController(repositoryFactory.CreateUserRepository())
+	homeController := controllers.NewHomeController()
 
 	authenticator := mvc.NewAuthenticator(repositoryFactory.CreateUserRepository())
 	router := mux.NewRouter()
 
 	apiPostRouter := router.Methods("POST").Subrouter()
 	apiGetRouter := router.Methods("GET").Subrouter()
-	apiGetRouter.HandleFunc("/", HttpReponseWrapper(service.Home.HandleIndex))
-	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.Home.HandlePing))
+	apiGetRouter.HandleFunc("/", HttpReponseWrapper(homeController.HandleIndex))
+	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(homeController.HandlePing))
 	apiGetRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
-		result := service.Callbacks.ListCallbacks(req)
+		result := callbacksController.ListCallbacks(req)
 		result.WriteResponse(response)
 	}))
 	apiGetRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
@@ -37,23 +39,23 @@ func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer 
 			Log.Warning("id parameter not given, return 404 not found.")
 			result = api.NewHttpStatusCodeResult(http.StatusNotFound)
 		} else {
-			requestArgs := &api.GetUserRequestArgs{
+			requestArgs := &messages.GetUserRequestArgs{
 				UserId: userId,
 			}
 
 			Log.Debug("Handing request to GetUser with %+v", requestArgs)
-			result = service.Users.GetUser(req, requestArgs)
+			result = usersController.GetUser(req, requestArgs)
 		}
 
 		result.WriteResponse(response)
 	})
 
-	addUserHandler := mvc.NewJsonBodyRequestArgsObjectHandler(service.Users.AddUser)
+	addUserHandler := mvc.NewJsonBodyRequestArgsObjectHandler(usersController.AddUser)
 	apiPostRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		addUserHandler.ServeHTTP(response, req)
 	})
 
-	addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(service.Callbacks.NewCallback)
+	addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(callbacksController.NewCallback)
 
 	apiPostRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
 		addCallbackHandler.ServeAuthHTTP(response, req)
