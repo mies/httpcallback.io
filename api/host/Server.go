@@ -13,22 +13,37 @@ import (
 
 type HttpCallbackApiServer struct {
 	router *mux.Router
+
+	authenticator *mvc.Authenticator
+
+	homeCtlr     *controllers.HomeController
+	callbackCtlr *controllers.CallbackController
+	userCtlr     *controllers.UserController
 }
 
 func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer {
-	callbacksController := controllers.NewCallbackController(repositoryFactory.CreateCallbackRepository())
-	usersController := controllers.NewUserController(repositoryFactory.CreateUserRepository())
-	homeController := controllers.NewHomeController()
+	userRepository := repositoryFactory.CreateUserRepository()
 
-	authenticator := mvc.NewAuthenticator(repositoryFactory.CreateUserRepository())
+	server := &HttpCallbackApiServer{
+		authenticator: mvc.NewAuthenticator(userRepository),
+		callbackCtlr:  controllers.NewCallbackController(repositoryFactory.CreateCallbackRepository()),
+		userCtlr:      controllers.NewUserController(userRepository),
+		homeCtlr:      controllers.NewHomeController(),
+	}
+
+	server.router = server.createRouter()
+	return server
+}
+
+func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	apiPostRouter := router.Methods("POST").Subrouter()
 	apiGetRouter := router.Methods("GET").Subrouter()
-	apiGetRouter.HandleFunc("/", HttpReponseWrapper(homeController.HandleIndex))
-	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(homeController.HandlePing))
-	apiGetRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
-		result := callbacksController.ListCallbacks(req)
+	apiGetRouter.HandleFunc("/", HttpReponseWrapper(s.homeCtlr.HandleIndex))
+	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(s.homeCtlr.HandlePing))
+	apiGetRouter.Handle("/user/callbacks", s.authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
+		result := s.callbackCtlr.ListCallbacks(req)
 		result.WriteResponse(response)
 	}))
 	apiGetRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
@@ -44,26 +59,24 @@ func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer 
 			}
 
 			Log.Debug("Handing request to GetUser with %+v", requestArgs)
-			result = usersController.GetUser(req, requestArgs)
+			result = s.userCtlr.GetUser(req, requestArgs)
 		}
 
 		result.WriteResponse(response)
 	})
 
-	addUserHandler := mvc.NewJsonBodyRequestArgsObjectHandler(usersController.AddUser)
+	addUserHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.userCtlr.AddUser)
 	apiPostRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		addUserHandler.ServeHTTP(response, req)
 	})
 
-	addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(callbacksController.NewCallback)
+	addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.callbackCtlr.NewCallback)
 
-	apiPostRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
+	apiPostRouter.Handle("/user/callbacks", s.authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
 		addCallbackHandler.ServeAuthHTTP(response, req)
 	}))
 
-	return &HttpCallbackApiServer{
-		router: router,
-	}
+	return router
 }
 
 func HttpReponseWrapper(handler func(*http.Request) mvc.ActionResult) http.HandlerFunc {
