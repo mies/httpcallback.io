@@ -1,7 +1,7 @@
 package api
 
 import (
-	. "github.com/pjvds/httpcallback.io/api/requests"
+	. "github.com/pjvds/httpcallback.io/api/messages"
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/model"
 	. "github.com/pjvds/httpcallback.io/mvc"
@@ -25,10 +25,8 @@ func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *NewCal
 		return ErrorResult(err)
 	}
 
-	return JsonResult(&struct {
-		Id model.ObjectId `bson:"_id,omitempty" json:"id"`
-	}{
-		Id: callback.Id,
+	return JsonResult(&NewCallbackResponse{
+		Id: callback.Id.String(),
 	})
 }
 

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	. "github.com/pjvds/httpcallback.io/mvc"
 	"net/http"
 	"time"
@@ -17,9 +18,12 @@ func NewHomeController() *HomeController {
 }
 
 func (c *HomeController) HandleIndex(request *http.Request) ActionResult {
+	up := time.Now().Sub(c.StartTime)
+	uptime := fmt.Sprintf("%v:%v:%v", up.Hours(), up.Minutes(), up.Seconds())
+
 	return JsonResult(&JsonDocument{
 		"message": "welcome!",
-		"uptime":  time.Now().Sub(c.StartTime).String(),
+		"uptime":  uptime,
 	})
 }
 
