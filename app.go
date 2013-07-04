@@ -9,6 +9,7 @@ import (
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/data/memory"
 	"github.com/pjvds/httpcallback.io/data/mongo"
+	"github.com/pjvds/httpcallback.io/mvc"
 	"github.com/pjvds/httpcallback.io/worker"
 	"net/http"
 	"os"
@@ -59,7 +60,7 @@ func main() {
 	usersController := api.NewUserController(repositoryFactory.CreateUserRepository())
 	service := api.NewService(callbacksController, usersController)
 
-	authenticator := api.NewAuthenticator(repositoryFactory.CreateUserRepository())
+	authenticator := mvc.NewAuthenticator(repositoryFactory.CreateUserRepository())
 
 	address := fmt.Sprintf("%s:%v", *Address, *Port)
 	router := mux.NewRouter()
@@ -68,12 +69,12 @@ func main() {
 	apiGetRouter := router.Methods("GET").Subrouter()
 	apiGetRouter.HandleFunc("/", HttpReponseWrapper(service.Home.HandleIndex))
 	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(service.Home.HandlePing))
-	apiGetRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
+	apiGetRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
 		result, err := service.Callbacks.ListCallbacks(req)
 		WriteResultOrError(response, result, err)
 	}))
 	apiGetRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
-		var result api.ActionResult
+		var result mvc.ActionResult
 		var err error
 
 		userId, ok := mux.Vars(req)["id"]
@@ -91,14 +92,14 @@ func main() {
 		WriteResultOrError(response, result, err)
 	})
 
-	addUserHandler := api.NewJsonBodyRequestArgsObjectHandler(service.Users.AddUser)
+	addUserHandler := mvc.NewJsonBodyRequestArgsObjectHandler(service.Users.AddUser)
 	apiPostRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		addUserHandler.ServeHTTP(response, req)
 	})
 
-	addCallbackHandler := api.NewJsonBodyRequestArgsObjectHandler(service.Callbacks.NewCallback)
+	addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(service.Callbacks.NewCallback)
 
-	apiPostRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *api.AuthenticatedRequest) {
+	apiPostRouter.Handle("/user/callbacks", authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
 		addCallbackHandler.ServeAuthHTTP(response, req)
 	}))
 
@@ -112,7 +113,7 @@ func main() {
 	}
 }
 
-func WriteResultOrError(w http.ResponseWriter, result api.ActionResult, err error) {
+func WriteResultOrError(w http.ResponseWriter, result mvc.ActionResult, err error) {
 	if err != nil {
 		Log.Debug("Controller finished with error: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -121,7 +122,7 @@ func WriteResultOrError(w http.ResponseWriter, result api.ActionResult, err erro
 	}
 }
 
-func HttpReponseWrapper(handler func(*http.Request) (api.ActionResult, error)) http.HandlerFunc {
+func HttpReponseWrapper(handler func(*http.Request) (mvc.ActionResult, error)) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		fmt.Printf("[%v] %v\n", req.Method, req.URL)
 		result, err := handler(req)

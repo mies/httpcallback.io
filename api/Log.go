@@ -4,4 +4,4 @@ import (
 	"github.com/op/go-logging"
 )
 
-var Log = logging.MustGetLogger("api")
+var Logger = logging.MustGetLogger("api")

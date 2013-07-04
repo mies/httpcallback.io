@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/model"
+	. "github.com/pjvds/httpcallback.io/mvc"
 )
 
 type CallbackController struct {

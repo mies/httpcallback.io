@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/model"
+	. "github.com/pjvds/httpcallback.io/mvc"
 	"github.com/pjvds/httpcallback.io/security"
 	"net/http"
 	"time"
@@ -32,7 +33,7 @@ type AddUserResponse struct {
 }
 
 func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) (ActionResult, error) {
-	Log.Info("Handling AddUser request for new user with username: %s", args.Username)
+	Logger.Info("Handling AddUser request for new user with username: %s", args.Username)
 
 	creationDate := time.Now()
 
@@ -73,7 +74,7 @@ func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequestAr
 	}
 
 	if user == nil {
-		Log.Debug("No user found with id '%s', returning 404 not found.", args.UserId)
+		Logger.Debug("No user found with id '%s', returning 404 not found.", args.UserId)
 		return NewHttpStatusCodeResult(http.StatusNotFound), nil
 	}
 
