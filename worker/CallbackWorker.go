@@ -73,7 +73,7 @@ func (worker *CallbackWorker) doWork() {
 					continue
 				}
 
-				Log.Info("Handling callback %v\n\turl:%v", callback.Id, callback.Request.Url)
+				Log.Info("Handling callback %v\n\turl: %v", callback.Id, callback.Request.Url)
 				workers.Add(1)
 				go worker.executeCallback(callback, workers)
 			}
@@ -95,8 +95,9 @@ func (worker *CallbackWorker) executeCallback(callback *model.Callback, workers 
 	stop := time.Now()
 	responseTime := stop.Sub(start)
 	if err != nil {
-		Log.Error("Error while executing callback:\n\rerror:%s\n\rurl:%s\n\tresponse time:%s",
+		Log.Error("Error while executing callback:\n\rerror: %v\n\rurl: %v\n\tresponse time: %v",
 			err.Error(), callback.Request.Url, responseTime)
+		return
 	}
 	defer response.Body.Close()
 

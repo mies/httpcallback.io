@@ -19,7 +19,7 @@ func validateHandler(handler interface{}) (bool, error) {
 
 	// Must be a func
 	if handlerType.Kind() != reflect.Func {
-		return false, errors.New(fmt.Sprintf("invalid handler type %s, handler must be an func", handlerType.Kind().String()))
+		return false, errors.New(fmt.Sprintf("invalid handler type %v, handler must be an func", handlerType.Kind().String()))
 	}
 
 	// Must have 2 in parameters

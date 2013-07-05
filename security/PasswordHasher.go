@@ -7,7 +7,7 @@ import (
 )
 
 func HashPassword(username string, password string, creationDate time.Time) string {
-	data := []byte(fmt.Sprintf("%s:%s:%s", username, password, creationDate))
+	data := []byte(fmt.Sprintf("%v:%v:%v", username, password, creationDate))
 
 	hash := sha256.New()
 	result := hash.Sum(data)

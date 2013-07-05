@@ -34,7 +34,7 @@ type AddUserResponse struct {
 }
 
 func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) ActionResult {
-	log.Info("Handling AddUser request for new user with username: %s", args.Username)
+	log.Info("Handling AddUser request for new user with username: %v", args.Username)
 
 	creationDate := time.Now()
 
@@ -62,7 +62,6 @@ func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequest) 
 	userId, err := model.ParseObjectId(args.UserId)
 	if err != nil {
 		// TODO: Invalid request!
-		fmt.Errorf("Invalid user id '%s': %s\nWill return 404 to user.", args.UserId, err.Error())
 		return NotFoundResult(fmt.Sprintf("user with id '%v' does not exist", args.UserId))
 	}
 

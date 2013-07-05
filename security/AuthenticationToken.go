@@ -9,7 +9,7 @@ func NewAuthToken() model.AuthenticationToken {
 	Log.Debug("Generating new AuthenticationToken")
 	uuid, err := uuid.NewV4()
 	if err != nil {
-		Log.Fatalf("Error while generating new uuid V4: %s", err.Error())
+		Log.Fatalf("Error while generating new uuid V4: %v", err.Error())
 	}
 
 	return model.AuthenticationToken(uuid.String())

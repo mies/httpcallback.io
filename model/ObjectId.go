@@ -12,8 +12,6 @@ type ObjectId string
 func NewObjectId() ObjectId {
 	id := bson.NewObjectId()
 	s := id.Hex()
-	Log.Debug("New ObjectId generated: %s", s)
-
 	return ObjectId(s)
 }
 
@@ -24,12 +22,12 @@ func (id ObjectId) String() string {
 func ParseObjectId(value string) (ObjectId, error) {
 	var id ObjectId
 	if len(value) != 24 {
-		return id, errors.New(fmt.Sprintf("Invalid object id. String lenght is %s while it must be %s", len(value), 24))
+		return id, errors.New(fmt.Sprintf("Invalid object id. String lenght is %v while it must be %v", len(value), 24))
 	}
 
 	_, err := hex.DecodeString(value)
 	if err != nil {
-		return id, errors.New(fmt.Sprintf("Invalid object id. Not a valid hexidecimal string: %s", err.Error()))
+		return id, errors.New(fmt.Sprintf("Invalid object id. Not a valid hexidecimal string: %v", err.Error()))
 	}
 
 	id = ObjectId(bson.ObjectIdHex(value).Hex())

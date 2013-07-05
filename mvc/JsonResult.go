@@ -26,7 +26,7 @@ type JsonResponse struct {
 func JsonResult(result interface{}) *JsonResponse {
 	data, err := json.Marshal(result)
 	if err != nil {
-		message := fmt.Sprintf("Unable to marshal object (%+v) to json: %s", result, err.Error())
+		message := fmt.Sprintf("Unable to marshal object (%+v) to json: %v", result, err.Error())
 		panic(message)
 	} else {
 		return &JsonResponse{

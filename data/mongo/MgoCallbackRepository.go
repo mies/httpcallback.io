@@ -10,17 +10,19 @@ import (
 type MgoCallbackRepository struct {
 	session  *MgoSession
 	database *mgo.Database
+	c        *mgo.Collection
 }
 
 func NewCallbackRepository(session *MgoSession) *MgoCallbackRepository {
 	return &MgoCallbackRepository{
 		session:  session,
 		database: session.database,
+		c:        session.database.C("Callbacks"),
 	}
 }
 
 func (r *MgoCallbackRepository) Add(callback *model.Callback) error {
-	return r.database.C("Callbacks").Insert(callback)
+	return r.c.Insert(callback)
 }
 
 func (r *MgoCallbackRepository) GetNextAndBumpNextAttemptTimeStamp(duration time.Duration) (*model.Callback, error) {
@@ -32,7 +34,7 @@ func (r *MgoCallbackRepository) GetNextAndBumpNextAttemptTimeStamp(duration time
 	}
 
 	var result model.Callback
-	_, err := r.database.C("Callbacks").Find(bson.M{"nextattempttimestamp": bson.M{"$lt": now}}).Apply(change, &result)
+	_, err := r.c.Find(bson.M{"nextattempttimestamp": bson.M{"$lt": now}}).Apply(change, &result)
 	if err != nil {
 		if err.Error() == mgo.ErrNotFound.Error() {
 			// mgo returns an ErrNotFound for atomic findAndModify operation
@@ -45,7 +47,7 @@ func (r *MgoCallbackRepository) GetNextAndBumpNextAttemptTimeStamp(duration time
 }
 
 func (r *MgoCallbackRepository) AddAttemptToCallback(callbackId model.ObjectId, attempt *model.CallbackAttempt) error {
-	return r.database.C("Callbacks").UpdateId(callbackId, bson.M{
+	return r.c.UpdateId(callbackId, bson.M{
 		"$push": bson.M{"attempts": attempt},
 		"$inc":  bson.M{"attemptcount": 1},
 		"$set":  bson.M{"finished": attempt.Success},
@@ -53,7 +55,7 @@ func (r *MgoCallbackRepository) AddAttemptToCallback(callbackId model.ObjectId, 
 }
 
 func (r *MgoCallbackRepository) List(userId model.ObjectId) ([]*model.Callback, error) {
-	query := r.database.C("Callbacks").Find(bson.M{"userid": userId})
+	query := r.c.Find(bson.M{"userid": userId})
 	var result []*model.Callback
 	err := query.All(&result)
 	if result == nil {

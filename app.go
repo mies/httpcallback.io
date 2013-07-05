@@ -23,7 +23,7 @@ var (
 func createRepositoryFactory(config *Configuration) (data.RepositoryFactory, error) {
 	if config.Mongo.UseMongo {
 		Log.Debug("Running with mongo data store")
-		Log.Debug("Connecting to mongo database %s", config.Mongo.DatabaseName)
+		Log.Debug("Connecting to mongo database %v", config.Mongo.DatabaseName)
 		mongoSession, err := mongo.Open(config.Mongo.ServerUrl, config.Mongo.DatabaseName)
 		if err != nil {
 			Log.Error("Unable to connect to mongo:", err)
@@ -42,7 +42,7 @@ func main() {
 	flag.Parse()
 	InitLogging()
 
-	Log.Info("Starting with config %s\n", *ConfigPath)
+	Log.Info("Starting with config %v\n", *ConfigPath)
 	config, err := OpenConfig(*ConfigPath)
 	if err != nil {
 		Log.Error("Unable to open config: %v", err.Error())
@@ -61,7 +61,7 @@ func main() {
 	Log.Notice("Started worker!")
 
 	address := fmt.Sprintf("%v:%v", *Address, *Port)
-	Log.Info("httpcallback.io now hosting at %s\n", address)
+	Log.Info("httpcallback.io now hosting at %v\n", address)
 	if err := http.ListenAndServe(address, handlers.LoggingHandler(os.Stdout, apiHost)); err != nil {
 		Log.Fatal(err)
 	}

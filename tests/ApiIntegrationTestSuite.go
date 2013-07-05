@@ -24,7 +24,7 @@ func (s *ApiIntegrationTestSuite) SetUpSuite(c *C) {
 	procAttr.Files = []*os.File{nil, os.Stdout, os.Stderr}
 	process, err := os.StartProcess(s.ProcessFilename, []string{"-config config.toml -port 8000"}, &procAttr)
 	if err != nil {
-		c.Errorf("Unable to start %s: %s", s.ProcessFilename, err.Error())
+		c.Errorf("Unable to start %v: %v", s.ProcessFilename, err.Error())
 		c.Fail()
 	}
 
@@ -32,13 +32,13 @@ func (s *ApiIntegrationTestSuite) SetUpSuite(c *C) {
 	time.Sleep(250 * time.Millisecond)
 	s.process = process
 
-	c.Logf("Started %s, pid %v", s.ProcessFilename, process.Pid)
+	c.Logf("Started %v, pid %v", s.ProcessFilename, process.Pid)
 }
 
 // Runs after the test suite finished, even when failed
 func (s *ApiIntegrationTestSuite) TearDownSuite(c *C) {
 	if err := s.process.Kill(); err != nil {
-		c.Logf("Unable to kill %s: %s", s.ProcessFilename, err.Error())
+		c.Logf("Unable to kill %v: %v", s.ProcessFilename, err.Error())
 	}
 }
 
@@ -92,7 +92,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
 	c.Assert(response.StatusCode, Equals, http.StatusOK)
 
 	creationReponse, _ := GetBodyAsDocument(response)
-	response, err = http.Get(fmt.Sprintf(s.ApiBaseUrl+"/user/%s", creationReponse["id"]))
+	response, err = http.Get(fmt.Sprintf(s.ApiBaseUrl+"/user/%v", creationReponse["id"]))
 	c.Assert(err, IsNil)
 	c.Assert(response.StatusCode, Equals, http.StatusOK)
 
