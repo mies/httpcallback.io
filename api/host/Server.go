@@ -3,7 +3,6 @@ package host
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/pjvds/httpcallback.io/api"
 	"github.com/pjvds/httpcallback.io/api/controllers"
 	"github.com/pjvds/httpcallback.io/api/messages"
 	"github.com/pjvds/httpcallback.io/data"
@@ -37,22 +36,22 @@ func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer 
 
 func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 	router := mux.NewRouter()
+	postRouter := router.Methods("POST").Subrouter()
+	getRouter := router.Methods("GET").Subrouter()
 
-	apiPostRouter := router.Methods("POST").Subrouter()
-	apiGetRouter := router.Methods("GET").Subrouter()
-	apiGetRouter.HandleFunc("/", HttpReponseWrapper(s.homeCtlr.HandleIndex))
-	apiGetRouter.HandleFunc("/ping", HttpReponseWrapper(s.homeCtlr.HandlePing))
-	apiGetRouter.Handle("/user/callbacks", s.authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
-		result := s.callbackCtlr.ListCallbacks(req)
-		result.WriteResponse(response)
+	getRouter.HandleFunc("/", HttpReponseWrapper(s.homeCtlr.HandleIndex))
+	getRouter.HandleFunc("/ping", HttpReponseWrapper(s.homeCtlr.HandlePing))
+	getRouter.Handle("/user/callbacks", s.authenticator.Wrap(func(response http.ResponseWriter, request *mvc.AuthenticatedRequest) {
+		s.callbackCtlr.ListCallbacks(request).WriteResponse(response)
 	}))
-	apiGetRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
+	getRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
 		var result mvc.ActionResult
 
 		userId, ok := mux.Vars(req)["id"]
 		if !ok {
+			// TODO: Invalid request!
 			Log.Warning("id parameter not given, return 404 not found.")
-			result = api.NewHttpStatusCodeResult(http.StatusNotFound)
+			result = mvc.NotFoundResult("no user found with empty id")
 		} else {
 			requestArgs := &messages.GetUserRequest{
 				UserId: userId,
@@ -66,15 +65,12 @@ func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 	})
 
 	addUserHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.userCtlr.AddUser)
-	apiPostRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
+	postRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
 		addUserHandler.ServeHTTP(response, req)
 	})
 
 	addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.callbackCtlr.NewCallback)
-
-	apiPostRouter.Handle("/user/callbacks", s.authenticator.Wrap(func(response http.ResponseWriter, req *mvc.AuthenticatedRequest) {
-		addCallbackHandler.ServeAuthHTTP(response, req)
-	}))
+	postRouter.Handle("/user/callbacks", s.authenticator.Wrap(addCallbackHandler.ServeAuthHTTP))
 
 	return router
 }

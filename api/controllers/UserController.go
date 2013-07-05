@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/pjvds/httpcallback.io/api"
 	. "github.com/pjvds/httpcallback.io/api/messages"
 	"github.com/pjvds/httpcallback.io/data"
 	"github.com/pjvds/httpcallback.io/model"
@@ -62,8 +61,9 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequest) ActionResult {
 	userId, err := model.ParseObjectId(args.UserId)
 	if err != nil {
+		// TODO: Invalid request!
 		fmt.Errorf("Invalid user id '%s': %s\nWill return 404 to user.", args.UserId, err.Error())
-		return api.NewHttpStatusCodeResult(http.StatusNotFound)
+		return NotFoundResult(fmt.Sprintf("user with id '%v' does not exist", args.UserId))
 	}
 
 	user, err := ctr.users.Get(userId)
@@ -72,8 +72,7 @@ func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequest) 
 	}
 
 	if user == nil {
-		log.Debug("No user found with id '%s', returning 404 not found.", args.UserId)
-		return api.NewHttpStatusCodeResult(http.StatusNotFound)
+		return NotFoundResult(fmt.Sprintf("user with id '%v' does not exist", args.UserId))
 	}
 
 	return JsonResult(struct {
