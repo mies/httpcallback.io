@@ -3,7 +3,6 @@ package controllers
 import (
 	"github.com/pjvds/httpcallback.io/data/memory"
 	. "launchpad.net/gocheck"
-	"testing"
 )
 
 type CallbackControllerTestSuite struct {

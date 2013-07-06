@@ -2,6 +2,7 @@ package host
 
 import (
 	"fmt"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/pjvds/httpcallback.io/api/controllers"
 	"github.com/pjvds/httpcallback.io/api/messages"
@@ -63,45 +64,61 @@ func createRepositoryFactory(config *Configuration) (data.RepositoryFactory, err
 
 func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 	router := mux.NewRouter()
-	postRouter := router.Methods("POST").Subrouter()
-	getRouter := router.Methods("GET").Subrouter()
 
-	getRouter.HandleFunc("/", HttpReponseWrapper(s.homeCtlr.HandleIndex))
-	getRouter.HandleFunc("/ping", HttpReponseWrapper(s.homeCtlr.HandlePing))
+	router.Handle("/", handlers.MethodHandler{
+		"GET": HttpReponseWrapper(s.homeCtlr.HandleIndex),
+	})
 
-	getRouter.HandleFunc("/auth/github/authorizeurl", HttpReponseWrapper(s.githubCtlr.GetGithubAuthorizeUrl))
-	getRouter.HandleFunc("/auth/github/callback", HttpReponseWrapper(s.githubCtlr.GithubCallback))
+	router.Handle("/ping", handlers.MethodHandler{
+		"GET": HttpReponseWrapper(s.homeCtlr.HandlePing),
+	})
 
-	getRouter.Handle("/user/callbacks", s.authenticator.Wrap(func(response http.ResponseWriter, request *mvc.AuthenticatedRequest) {
-		s.callbackCtlr.ListCallbacks(request).WriteResponse(response)
-	}))
-	getRouter.HandleFunc("/user/{id}", func(response http.ResponseWriter, req *http.Request) {
-		var result mvc.ActionResult
+	router.Handle("/auth/github/authorizeurl", handlers.MethodHandler{
+		"GET": HttpReponseWrapper(s.githubCtlr.GetGithubAuthorizeUrl),
+	})
+	router.Handle("/auth/github/callback", handlers.MethodHandler{
+		"GET": HttpReponseWrapper(s.githubCtlr.GithubCallback),
+	})
 
-		userId, ok := mux.Vars(req)["id"]
-		if !ok {
-			// TODO: Invalid request!
-			Log.Warning("id parameter not given, return 404 not found.")
-			result = mvc.NotFoundResult("no user found with empty id")
-		} else {
-			requestArgs := &messages.GetUserRequest{
-				UserId: userId,
+	router.Handle("/user/callbacks", handlers.MethodHandler{
+		"GET": s.authenticator.Wrap(func(response http.ResponseWriter, request *mvc.AuthenticatedRequest) {
+			s.callbackCtlr.ListCallbacks(request).WriteResponse(response)
+		}),
+	})
+
+	router.Handle("/user/{id}", handlers.MethodHandler{
+		"GET": mvc.HandlerFuncToHandler(func(response http.ResponseWriter, req *http.Request) {
+			var result mvc.ActionResult
+
+			userId, ok := mux.Vars(req)["id"]
+			if !ok {
+				// TODO: Invalid request!
+				Log.Warning("id parameter not given, return 404 not found.")
+				result = mvc.NotFoundResult("no user found with empty id")
+			} else {
+				requestArgs := &messages.GetUserRequest{
+					UserId: userId,
+				}
+
+				Log.Debug("Handing request to GetUser with %+v", requestArgs)
+				result = s.userCtlr.GetUser(req, requestArgs)
 			}
 
-			Log.Debug("Handing request to GetUser with %+v", requestArgs)
-			result = s.userCtlr.GetUser(req, requestArgs)
-		}
-
-		result.WriteResponse(response)
+			result.WriteResponse(response)
+		}),
 	})
 
 	addUserHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.userCtlr.AddUser)
-	postRouter.HandleFunc("/users", func(response http.ResponseWriter, req *http.Request) {
-		addUserHandler.ServeHTTP(response, req)
+	router.Handle("/users", handlers.MethodHandler{
+		"POST": mvc.HandlerFuncToHandler(func(response http.ResponseWriter, req *http.Request) {
+			addUserHandler.ServeHTTP(response, req)
+		}),
 	})
 
 	addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.callbackCtlr.NewCallback)
-	postRouter.Handle("/user/callbacks", s.authenticator.Wrap(addCallbackHandler.ServeAuthHTTP))
+	router.Handle("/user/callbacks", handlers.MethodHandler{
+		"POST": s.authenticator.Wrap(addCallbackHandler.ServeAuthHTTP),
+	})
 
 	return router
 }
