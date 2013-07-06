@@ -132,5 +132,6 @@ func HttpReponseWrapper(handler func(*http.Request) mvc.ActionResult) http.Handl
 }
 
 func (s *HttpCallbackApiServer) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	response.Header().Add("Access-Control-Allow-Origin", "*")
 	s.router.ServeHTTP(response, request)
 }
