@@ -5,7 +5,7 @@ Hostname = "httpcallback-io.herokuapp.com"
 ClientId = "ce1b9a918b75be5da302"
 ClientSecret = "50f90c49c516c065ad322518e9b43d5cd9936070"
 AuthorizeUrl = "https://github.com/login/oauth/authorize"
-AccessTokenUrl = https://github.com/login/oauth/access_token"
+AccessTokenUrl = "https://github.com/login/oauth/access_token"
 
 [Mongo]
 UseMongo = true
