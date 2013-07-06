@@ -6,6 +6,8 @@ import (
 	"github.com/pjvds/httpcallback.io/api/controllers"
 	"github.com/pjvds/httpcallback.io/api/messages"
 	"github.com/pjvds/httpcallback.io/data"
+	"github.com/pjvds/httpcallback.io/data/memory"
+	"github.com/pjvds/httpcallback.io/data/mongo"
 	"github.com/pjvds/httpcallback.io/mvc"
 	"net/http"
 )
@@ -18,9 +20,15 @@ type HttpCallbackApiServer struct {
 	homeCtlr     *controllers.HomeController
 	callbackCtlr *controllers.CallbackController
 	userCtlr     *controllers.UserController
+	githubCtlr   *controllers.GithubOAuthController
 }
 
-func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer {
+func NewServer(config *Configuration) *HttpCallbackApiServer {
+	repositoryFactory, err := createRepositoryFactory(config)
+	if err != nil {
+		Log.Fatal("[FATAL] Could not create repository factory: " + err.Error())
+	}
+
 	userRepository := repositoryFactory.CreateUserRepository()
 
 	server := &HttpCallbackApiServer{
@@ -28,10 +36,29 @@ func NewServer(repositoryFactory data.RepositoryFactory) *HttpCallbackApiServer 
 		callbackCtlr:  controllers.NewCallbackController(repositoryFactory.CreateCallbackRepository()),
 		userCtlr:      controllers.NewUserController(userRepository),
 		homeCtlr:      controllers.NewHomeController(),
+		githubCtlr:    controllers.NewGithubOAuthController(config.Github.ClientId, config.Github.ClientSecret, config.Github.AuthorizeUrl, config.Github.AccessTokenUrl),
 	}
 
 	server.router = server.createRouter()
 	return server
+}
+
+func createRepositoryFactory(config *Configuration) (data.RepositoryFactory, error) {
+	if config.Mongo.UseMongo {
+		Log.Debug("Running with mongo data store")
+		Log.Debug("Connecting to mongo database %v", config.Mongo.DatabaseName)
+		mongoSession, err := mongo.Open(config.Mongo.ServerUrl, config.Mongo.DatabaseName)
+		if err != nil {
+			Log.Error("Unable to connect to mongo:", err)
+			return nil, err
+		}
+		Log.Debug("Connected succesfully")
+		return mongo.NewMgoRepositoryFactory(mongoSession), nil
+
+	} else {
+		Log.Debug("Runnig with inmemory data store")
+		return memory.NewMemRepositoryFactory(), nil
+	}
 }
 
 func (s *HttpCallbackApiServer) createRouter() *mux.Router {
@@ -41,9 +68,9 @@ func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 
 	getRouter.HandleFunc("/", HttpReponseWrapper(s.homeCtlr.HandleIndex))
 	getRouter.HandleFunc("/ping", HttpReponseWrapper(s.homeCtlr.HandlePing))
-	getRouter.HandleFunc("/auth/getgithubinfo", HttpReponseWrapper(s.userCtlr.GetGithubAuthorizeUrl))
 
-	getRouter.HandleFunc("/auth/callback/github", HttpReponseWrapper(s.userCtlr.GithubCallback))
+	getRouter.HandleFunc("/auth/getgithubinfo", HttpReponseWrapper(s.githubCtlr.GetGithubAuthorizeUrl))
+	getRouter.HandleFunc("/auth/callback/github", HttpReponseWrapper(s.githubCtlr.GithubCallback))
 
 	getRouter.Handle("/user/callbacks", s.authenticator.Wrap(func(response http.ResponseWriter, request *mvc.AuthenticatedRequest) {
 		s.callbackCtlr.ListCallbacks(request).WriteResponse(response)

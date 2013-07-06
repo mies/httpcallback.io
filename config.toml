@@ -1,6 +1,12 @@
 [Host]
 Hostname = "localhost"
 
+[Github]
+ClientId = "955e38be95aa774b6dd4"
+ClientSecret = "176490ae3e64e8020000cb74f73a154316909e5a"
+AuthorizeUrl = "https://github.com/login/oauth/authorize"
+AccessTokenUrl = https://github.com/login/oauth/access_token"
+
 [Mongo]
 UseMongo = false
 ServerUrl = "mongodb://localhost/httpcallback"
