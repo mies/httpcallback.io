@@ -41,6 +41,10 @@ func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 
 	getRouter.HandleFunc("/", HttpReponseWrapper(s.homeCtlr.HandleIndex))
 	getRouter.HandleFunc("/ping", HttpReponseWrapper(s.homeCtlr.HandlePing))
+	getRouter.HandleFunc("/auth/getgithubinfo", HttpReponseWrapper(s.userCtlr.GetGithubAuthorizeUrl))
+
+	getRouter.HandleFunc("/auth/callback/github", HttpReponseWrapper(s.userCtlr.GithubCallback))
+
 	getRouter.Handle("/user/callbacks", s.authenticator.Wrap(func(response http.ResponseWriter, request *mvc.AuthenticatedRequest) {
 		s.callbackCtlr.ListCallbacks(request).WriteResponse(response)
 	}))

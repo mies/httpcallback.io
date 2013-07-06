@@ -14,6 +14,7 @@ import (
 //   "Baz": 42,
 // }
 type JsonDocument map[string]interface{}
+type JsonArray []interface{}
 
 type JsonResponse struct {
 	data []byte
