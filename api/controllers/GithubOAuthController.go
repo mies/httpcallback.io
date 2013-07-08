@@ -4,6 +4,7 @@ import (
 	"bitbucket.org/gosimple/oauth2"
 	"encoding/json"
 	"errors"
+	"github.com/pjvds/httpcallback.io/data"
 	. "github.com/pjvds/httpcallback.io/mvc"
 	"io/ioutil"
 	"net/http"
@@ -14,6 +15,7 @@ type GithubOAuthController struct {
 	ClientSecret   string
 	AuthorizeUrl   string
 	AccessTokenUrl string
+	UserRepository data.UserRepository
 }
 
 type GithubAccessTokenRequest struct {
@@ -21,12 +23,13 @@ type GithubAccessTokenRequest struct {
 	TokenType   string `json:"token_type"`
 }
 
-func NewGithubOAuthController(clientId, clientSecret, authorizeUrl, accessTokenUrl string) *GithubOAuthController {
+func NewGithubOAuthController(clientId, clientSecret, authorizeUrl, accessTokenUrl string, userRepository data.UserRepository) *GithubOAuthController {
 	return &GithubOAuthController{
 		ClientId:       clientId,
 		ClientSecret:   clientSecret,
 		AuthorizeUrl:   authorizeUrl,
 		AccessTokenUrl: accessTokenUrl,
+		UserRepository: userRepository,
 	}
 }
 

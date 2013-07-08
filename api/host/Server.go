@@ -37,7 +37,8 @@ func NewServer(config *Configuration) *HttpCallbackApiServer {
 		callbackCtlr:  controllers.NewCallbackController(repositoryFactory.CreateCallbackRepository()),
 		userCtlr:      controllers.NewUserController(userRepository),
 		homeCtlr:      controllers.NewHomeController(),
-		githubCtlr:    controllers.NewGithubOAuthController(config.Github.ClientId, config.Github.ClientSecret, config.Github.AuthorizeUrl, config.Github.AccessTokenUrl),
+		githubCtlr: controllers.NewGithubOAuthController(config.Github.ClientId, config.Github.ClientSecret,
+			config.Github.AuthorizeUrl, config.Github.AccessTokenUrl, userRepository),
 	}
 
 	server.router = server.createRouter()
