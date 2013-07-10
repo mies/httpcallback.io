@@ -81,6 +81,14 @@ func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 		"GET": HttpReponseWrapper(s.githubCtlr.GithubCallback),
 	})
 
+	addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.callbackCtlr.NewCallback)
+	router.Handle("/user/callbacks", handlers.MethodHandler{
+		"GET": s.authenticator.Wrap(func(response http.ResponseWriter, request *mvc.AuthenticatedRequest) {
+			s.callbackCtlr.ListCallbacks(request).WriteResponse(response)
+		}),
+		"POST": s.authenticator.Wrap(addCallbackHandler.ServeAuthHTTP),
+	})
+
 	router.Handle("/user/{id}", handlers.MethodHandler{
 		"GET": mvc.HandlerFuncToHandler(func(response http.ResponseWriter, req *http.Request) {
 			var result mvc.ActionResult
@@ -108,14 +116,6 @@ func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 		"POST": mvc.HandlerFuncToHandler(func(response http.ResponseWriter, req *http.Request) {
 			addUserHandler.ServeHTTP(response, req)
 		}),
-	})
-
-	addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.callbackCtlr.NewCallback)
-	router.Handle("/user/callbacks", handlers.MethodHandler{
-		"GET": s.authenticator.Wrap(func(response http.ResponseWriter, request *mvc.AuthenticatedRequest) {
-			s.callbackCtlr.ListCallbacks(request).WriteResponse(response)
-		}),
-		"POST": s.authenticator.Wrap(addCallbackHandler.ServeAuthHTTP),
 	})
 
 	return router
