@@ -6,15 +6,17 @@ import (
 	"errors"
 	"github.com/pjvds/httpcallback.io/data"
 	. "github.com/pjvds/httpcallback.io/mvc"
-	"io/ioutil"
 	"net/http"
 )
 
+const (
+	// The base url of the github API which also include the oauth2
+	// methods. Which are also the only methods we will use in this controller
+	BaseUrl = "https://api.github.com/"
+)
+
 type GithubOAuthController struct {
-	ClientId       string
-	ClientSecret   string
-	AuthorizeUrl   string
-	AccessTokenUrl string
+	GithubService  *oauth2.OAuth2Service
 	UserRepository data.UserRepository
 }
 
@@ -25,10 +27,7 @@ type GithubAccessTokenRequest struct {
 
 func NewGithubOAuthController(clientId, clientSecret, authorizeUrl, accessTokenUrl string, userRepository data.UserRepository) *GithubOAuthController {
 	return &GithubOAuthController{
-		ClientId:       clientId,
-		ClientSecret:   clientSecret,
-		AuthorizeUrl:   authorizeUrl,
-		AccessTokenUrl: accessTokenUrl,
+		GithubService:  oauth2.Service(clientId, clientSecret, authorizeUrl, accessTokenUrl),
 		UserRepository: userRepository,
 	}
 }
@@ -37,11 +36,7 @@ func (ctr *GithubOAuthController) GithubCallback(request *http.Request) ActionRe
 	code := request.URL.Query().Get("code")
 	Log.Debug("Received callback from github oauth provider with code: %v", code)
 
-	service := oauth2.Service(
-		ctr.ClientId,
-		ctr.ClientSecret,
-		ctr.AuthorizeUrl,
-		ctr.AccessTokenUrl)
+	service := ctr.GithubService
 
 	// Get access token.
 	token, err := service.GetAccessToken(code)
@@ -52,8 +47,7 @@ func (ctr *GithubOAuthController) GithubCallback(request *http.Request) ActionRe
 	Log.Debug("Received access token: %v", token)
 
 	// Prepare resource request.
-	apiBaseURL := "https://api.github.com/"
-	github := oauth2.Request(apiBaseURL, token.AccessToken)
+	github := oauth2.Request(BaseUrl, token.AccessToken)
 	github.Header.Add("Accept", "application/vnd.github.v3")
 	github.AccessTokenInHeader = true
 	github.AccessTokenInHeaderScheme = "token"
@@ -61,22 +55,17 @@ func (ctr *GithubOAuthController) GithubCallback(request *http.Request) ActionRe
 	// Make the request.
 	// Provide API end point (http://developer.github.com/v3/users/#get-the-authenticated-user)
 	apiEndPoint := "user/emails"
-	githubUserData, err := github.Get(apiEndPoint)
+	userEmailsResponse, err := github.Get(apiEndPoint)
 	if err != nil {
 		Log.Error("Get: ", err)
 		return ErrorResult(err)
 	}
-	defer githubUserData.Body.Close()
+	defer userEmailsResponse.Body.Close()
 
-	body, err := ioutil.ReadAll(githubUserData.Body)
-	if err != nil {
-		Log.Error("Error while reading body from response: ", err)
-		return ErrorResult(err)
-	}
-
-	var docs []map[string]interface{}
-	if err := json.Unmarshal(body, &docs); err != nil {
-		Log.Error("Error while decoding github response body: %v\n\n\tBody: %v", err, string(body))
+	var docs []JsonDocument
+	var decoder = json.NewDecoder(userEmailsResponse.Body)
+	if err := decoder.Decode(&docs); err != nil {
+		Log.Error("Error while decoding github response body: %v", err)
 		return ErrorResult(err)
 	}
 
@@ -93,15 +82,7 @@ func (ctr *GithubOAuthController) GithubCallback(request *http.Request) ActionRe
 }
 
 func (ctr *GithubOAuthController) GetGithubAuthorizeUrl(request *http.Request) ActionResult {
-	service := oauth2.Service(
-		ctr.ClientId,
-		ctr.ClientSecret,
-		ctr.AuthorizeUrl,
-		ctr.AccessTokenUrl)
-	service.Scope = "user:email"
-
-	// Get authorization url.
-	authUrl := service.GetAuthorizeURL("")
+	authUrl := ctr.GithubService.GetAuthorizeURL("")
 
 	return JsonResult(JsonDocument{
 		"authorizeUrl": authUrl,
