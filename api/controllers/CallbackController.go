@@ -17,6 +17,7 @@ func NewCallbackController(callbacks data.CallbackRepository) *CallbackControlle
 	}
 }
 
+// Adds a new callback to the authenticated user.
 func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *NewCallbackRequest) ActionResult {
 	callback := model.NewCallback(r.UserId, args.Url, args.When)
 
@@ -30,6 +31,7 @@ func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *NewCal
 	})
 }
 
+// List all the callbacks from the authenticated user.
 func (ctr *CallbackController) ListCallbacks(r *AuthenticatedRequest) ActionResult {
 	callbacks, err := ctr.callbacks.List(r.UserId)
 
