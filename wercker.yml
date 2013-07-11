@@ -8,11 +8,7 @@ build:
     - script:
         name: Build
         code: |
-          go build ./...
-    - script:
-        name: Install
-        code: |
-          go install
+          go build
     - script:
         name: Test
         code: go test ./...
