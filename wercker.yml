@@ -3,6 +3,9 @@ build:
   steps:
     - pjvds/setup-go-workspace
     - script:
+        name: Get dependencies
+        code: go get
+    - script:
         name: Build
         code: go build
     - script:
