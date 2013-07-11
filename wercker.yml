@@ -8,8 +8,11 @@ build:
     - script:
         name: Build
         code: |
-          go build
-          ls -al
+          go build ./...
+    - script:
+        name: Install
+        code: |
+          go install
     - script:
         name: Test
         code: go test ./...
