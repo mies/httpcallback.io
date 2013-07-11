@@ -4,11 +4,11 @@ build:
     - pjvds/setup-go-workspace
     - script:
         name: Get dependencies
-        code: go get ./...
+        code: go get -v ./...
     - script:
         name: Build
         code: |
-          go build
+          go build -v
     - script:
         name: Test
         code: go test ./...
