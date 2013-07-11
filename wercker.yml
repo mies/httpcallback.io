@@ -1,1 +1,10 @@
 box: pjvds/golang
+build:
+  steps:
+    - pjvds/setup-go-workspace
+    - script:
+        name: Build
+        code: go build
+    - script:
+        name: Test
+        code: go test
