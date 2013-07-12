@@ -95,7 +95,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
 	creationReponse, _ := GetBodyAsDocument(response)
 	response, err = http.Get(fmt.Sprintf(s.ApiBaseUrl+"/user/%v", creationReponse["id"]))
 	c.Assert(err, IsNil)
-	c.Assert(response.StatusCode, Equals, http.StatusOK)
+	c.Assert(response.StatusCode, Equals, http.StatusAccepted)
 
 	usersResponse, err := GetBodyAsDocument(response)
 
