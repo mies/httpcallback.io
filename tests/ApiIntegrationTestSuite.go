@@ -21,16 +21,19 @@ type ApiIntegrationTestSuite struct {
 // Runs before the test suite starts
 func (s *ApiIntegrationTestSuite) SetUpSuite(c *C) {
 	c.Log("Setting up api integrtion test suite")
+
 	configPath := "config.toml"
 	config, err := host.OpenConfig(configPath)
 	if err != nil {
 		c.Fatalf("Cannot open config at %v: %v", configPath, err)
 	}
 
+	// Host api service in this process
 	apiServer := host.NewServer(config)
-	testServer := httptest.NewServer(apiServer)
-	s.ApiBaseUrl = testServer.URL
-	s.testServer = testServer
+
+	// Create and start service
+	s.testServer = httptest.NewServer(apiServer)
+	s.ApiBaseUrl = s.testServer.URL
 
 	c.Logf("Started test server at %v", s.ApiBaseUrl)
 }
