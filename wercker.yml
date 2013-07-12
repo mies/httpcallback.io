@@ -6,6 +6,9 @@ build:
         code: ls -laxo
     - pjvds/setup-go-workspace
     - script:
+        name: Copy git
+        code: cp -R $WERCKER_ROOT_DIR/.git $WERCKER_SOURCE_DIR
+    - script:
         name: Populate cache
         code: |-
             # BEFORE YOU COPY AND USE THIS STEP IN YOUR OWN BUILD PIPELINE
