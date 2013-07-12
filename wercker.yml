@@ -6,9 +6,13 @@ build:
         code: |-
           export GO_PKG_CACHE_DIR=$WERCKER_CACHE_DIR/go-pkg-cache
           mkdir -p $GO_PKG_CACHE_DIR
-          rm -fr "$GOPATH/pkg"
-          ln -s $GO_PKG_CACHE_DIR/ "$GOPATH/pkg"
+          rm -fr "$GOPATH"
+          ln -s $GO_PKG_CACHE_DIR/ "$GOPATH"
     - pjvds/setup-go-workspace
+    - script:
+        name: Populate cache
+        code: |-
+            if test -d "$WERCKER_CACHE_DIR/go-pkg-cache"; then rsync -avz --exclude "$WERCKER_SOURCE_DIR" "$WERCKER_CACHE_DIR/go-pkg-cache" "$GOPATH" ; fi
     - script:
         name: Get dependencies
         code: go get -v ./...
@@ -19,3 +23,7 @@ build:
     - script:
         name: Test
         code: go test ./...
+    - script:
+        name: Store cache
+        code: |-
+            if test -d "$WERCKER_CACHE_DIR/go-pkg-cache"; then rsync -avz --exclude "$WERCKER_SOURCE_DIR" "$GOPATH" "$WERCKER_CACHE_DIR/go-pkg-cache" ; fi
