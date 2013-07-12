@@ -20,6 +20,7 @@ type ApiIntegrationTestSuite struct {
 
 // Runs before the test suite starts
 func (s *ApiIntegrationTestSuite) SetUpSuite(c *C) {
+	c.Log("Setting up api integrtion test suite")
 	configPath := "config.toml"
 	config, err := host.OpenConfig(configPath)
 	if err != nil {
@@ -28,7 +29,6 @@ func (s *ApiIntegrationTestSuite) SetUpSuite(c *C) {
 
 	apiServer := host.NewServer(config)
 	testServer := httptest.NewServer(apiServer)
-	testServer.Start()
 	s.ApiBaseUrl = testServer.URL
 	s.testServer = testServer
 
