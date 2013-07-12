@@ -15,7 +15,10 @@ build:
             if test -d "$WERCKER_CACHE_DIR/go-pkg-cache"; then rsync -avzv --exclude "$WERCKER_SOURCE_DIR" "$WERCKER_CACHE_DIR/go-pkg-cache/" "$GOPATH/" ; fi
     - script:
         name: Tree go path
-        code: tree $GOPATH
+        code: |-
+          sudo apt-get update
+          sudo apt-get install tree
+          tree $GOPATH
     - script:
         name: Get dependencies
         code: go get -v ./...
