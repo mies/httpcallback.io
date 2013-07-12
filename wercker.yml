@@ -12,6 +12,3 @@ build:
     - script:
         name: Test
         code: go test ./...
-    - script:
-        name: Copy binary to output
-        code: cp httpcallback.io $WERCKER_OUTPUT_DIR
