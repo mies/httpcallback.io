@@ -1,14 +1,21 @@
 box: pjvds/golang
-# build:
-#   steps:
-#     - pjvds/setup-go-workspace
-#     - script:
-#         name: Get dependencies
-#         code: go get -v ./...
-#     - script:
-#         name: Build
-#         code: |
-#           go build -v
-#     - script:
-#         name: Test
-#         code: go test ./...
+build:
+  steps:
+    - script:
+        name: Enable package caching
+        code: |-
+          export GO_PKG_CACHE_DIR=$WERCKER_CACHE_DIR/go-pkg-cache
+          mkdir -p $GO_PKG_CACHE_DIR
+          rm -fr "$GOPATH/pkg"
+          ln -s $GO_PKG_CACHE_DIR/ "$GOPATH/pkg"
+    - pjvds/setup-go-workspace
+    - script:
+        name: Get dependencies
+        code: go get -v ./...
+    - script:
+        name: Build
+        code: |
+          go build -v
+    - script:
+        name: Test
+        code: go test ./...
