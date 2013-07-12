@@ -1,13 +1,6 @@
 box: pjvds/golang
 build:
   steps:
-    - script:
-        name: Enable package caching
-        code: |-
-          export GO_PKG_CACHE_DIR=$WERCKER_CACHE_DIR/go-pkg-cache
-          mkdir -p $GO_PKG_CACHE_DIR
-          rm -fr "$GOPATH"
-          ln -s $GO_PKG_CACHE_DIR/ "$GOPATH"
     - pjvds/setup-go-workspace
     - script:
         name: Populate cache
