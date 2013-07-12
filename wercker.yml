@@ -1,6 +1,9 @@
 box: pjvds/golang
 build:
   steps:
+    - script:
+        name: List src dir
+        code: ls -laxo
     - pjvds/setup-go-workspace
     - script:
         name: Populate cache
@@ -24,7 +27,6 @@ build:
         code: |-
             go get github.com/axw/gocov/gocov
             go get github.com/mattn/goveralls
-            ls -a
             goveralls $COVERALLS_TOKEN
     - script:
         name: Store cache
