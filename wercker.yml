@@ -12,7 +12,7 @@ build:
     - script:
         name: Populate cache
         code: |-
-            if test -d "$WERCKER_CACHE_DIR/go-pkg-cache"; then rsync -avzv --exclude "$WERCKER_SOURCE_DIR" "$WERCKER_CACHE_DIR/go-pkg-cache" "$GOPATH" ; fi
+            if test -d "$WERCKER_CACHE_DIR/go-pkg-cache"; then rsync -avzv --exclude "$WERCKER_SOURCE_DIR" "$WERCKER_CACHE_DIR/go-pkg-cache/" "$GOPATH/" ; fi
     - script:
         name: Get dependencies
         code: go get -v ./...
@@ -26,4 +26,4 @@ build:
     - script:
         name: Store cache
         code: |-
-            rsync -avzv --exclude "$WERCKER_SOURCE_DIR" "$GOPATH" "$WERCKER_CACHE_DIR/go-pkg-cache"
+            rsync -avzv --exclude "$WERCKER_SOURCE_DIR" "$GOPATH/" "$WERCKER_CACHE_DIR/go-pkg-cache/"
