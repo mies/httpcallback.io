@@ -26,4 +26,4 @@ build:
     - script:
         name: Store cache
         code: |-
-            if test -d "$WERCKER_CACHE_DIR/go-pkg-cache"; then rsync -avz --exclude "$WERCKER_SOURCE_DIR" "$GOPATH" "$WERCKER_CACHE_DIR/go-pkg-cache" ; fi
+            rsync -avz --exclude "$WERCKER_SOURCE_DIR" "$GOPATH" "$WERCKER_CACHE_DIR/go-pkg-cache"
