@@ -20,6 +20,13 @@ build:
         name: Test
         code: go test ./...
     - script:
+        name: Coveralls.io
+        code: |-
+            go get github.com/axw/gocov/gocov
+            go get github.com/mattn/goveralls
+            ls -a
+            goveralls $COVERALLS_TOKEN
+    - script:
         name: Store cache
         code: |-
             # BEFORE YOU COPY AND USE THIS STEP IN YOUR OWN BUILD PIPELINE
