@@ -3,43 +3,44 @@ package tests
 import (
 	"bytes"
 	"fmt"
+	"github.com/pjvds/httpcallback.io/api/host"
 	. "launchpad.net/gocheck"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
-	"os"
-	"time"
 )
 
 // The state for the test suite
 type ApiIntegrationTestSuite struct {
 	ProcessFilename string
-	process         *os.Process
 	Warmup          int
 	ApiBaseUrl      string
+	testServer      *httptest.Server
 }
 
 // Runs before the test suite starts
 func (s *ApiIntegrationTestSuite) SetUpSuite(c *C) {
-	var procAttr os.ProcAttr
-	procAttr.Files = []*os.File{nil, os.Stdout, os.Stderr}
-	process, err := os.StartProcess(s.ProcessFilename, []string{"-config config.toml -port 8000"}, &procAttr)
+	configPath := "config.toml"
+	config, err := host.OpenConfig(configPath)
 	if err != nil {
-		c.Errorf("Unable to start %v: %v", s.ProcessFilename, err.Error())
-		c.Fail()
+		c.Fatalf("Cannot open config at %v: %v", configPath, err)
 	}
 
-	// Allow process to warm up
-	time.Sleep(250 * time.Millisecond)
-	s.process = process
+	apiServer := host.NewServer(config)
+	testServer := httptest.NewServer(apiServer)
+	testServer.Start()
+	s.ApiBaseUrl = testServer.URL
+	s.testServer = testServer
 
-	c.Logf("Started %v, pid %v", s.ProcessFilename, process.Pid)
+	c.Logf("Started test server at %v", s.ApiBaseUrl)
 }
 
 // Runs after the test suite finished, even when failed
 func (s *ApiIntegrationTestSuite) TearDownSuite(c *C) {
-	if err := s.process.Kill(); err != nil {
-		c.Logf("Unable to kill %v: %v", s.ProcessFilename, err.Error())
-	}
+	c.Log("Tearing down api integration test suite")
+
+	s.testServer.Close()
+	c.Log("Test server closed")
 }
 
 func (s *ApiIntegrationTestSuite) TestPing(c *C) {
