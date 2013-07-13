@@ -2,6 +2,7 @@ box: pjvds/golang
 build:
   steps:
     - pjvds/setup-go-workspace
+
     - script:
         name: Populate cache
         code: |-
@@ -9,29 +10,27 @@ build:
             # MAKE SURE YOU SET $WERCKER_SOURCE_DIR TO THE PACKAGE DIRECTORY
             # OR YOUR PROJECT, LIKE: $GOPATH/github.com/pjvds/httpcallback.io
             if test -d "$WERCKER_CACHE_DIR/go-pkg-cache"; then rsync -avzv --exclude "$WERCKER_SOURCE_DIR" "$WERCKER_CACHE_DIR/go-pkg-cache/" "$GOPATH/" ; fi
+
     - script:
         name: Get dependencies
         code: go get -v ./...
+
     - script:
         name: Build
         code: |
           go build -v
+
     - script:
         name: Test
         code: go test ./...
+
     - script:
         name: Coveralls.io
         code: |-
             go get github.com/axw/gocov/gocov
             go get github.com/mattn/goveralls
             goveralls $COVERALLS_TOKEN
-    - script:
-        name: Store cache
-        code: |-
-            # BEFORE YOU COPY AND USE THIS STEP IN YOUR OWN BUILD PIPELINE
-            # MAKE SURE YOU SET $WERCKER_SOURCE_DIR TO THE PACKAGE DIRECTORY
-            # OR YOUR PROJECT, LIKE: $GOPATH/github.com/pjvds/httpcallback.io
-            rsync -avzv --exclude "$WERCKER_SOURCE_DIR" "$GOPATH/" "$WERCKER_CACHE_DIR/go-pkg-cache/"
+
     - create-file:
         name: Generate config.toml
         filename: $WERCKER_ROOT/config.toml
@@ -39,14 +38,20 @@ build:
         content: |-
             [Host]
             Hostname = "httpcallback-io.herokuapp.com"
-
             [Github]
             ClientId = "$GITHUB_CLIENT_ID"
             ClientSecret = "$GITHUB_CLIENT_SECRET"
             AuthorizeUrl = "https://github.com/login/oauth/authorize"
             AccessTokenUrl = "https://github.com/login/oauth/access_token"
-
             [Mongo]
             UseMongo = true
             ServerUrl = "$MONGO_SERVER_URL"
             DatabaseName = "httpcallback"
+
+    - script:
+        name: Store cache
+        code: |-
+            # BEFORE YOU COPY AND USE THIS STEP IN YOUR OWN BUILD PIPELINE
+            # MAKE SURE YOU SET $WERCKER_SOURCE_DIR TO THE PACKAGE DIRECTORY
+            # OR YOUR PROJECT, LIKE: $GOPATH/github.com/pjvds/httpcallback.io
+            rsync -avzv --exclude "$WERCKER_SOURCE_DIR" "$GOPATH/" "$WERCKER_CACHE_DIR/go-pkg-cache/"
