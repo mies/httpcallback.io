@@ -81,6 +81,35 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserResponse(c *C) {
 	c.Assert(doc["authToken"], NotNil)
 }
 
+func (s *ApiIntegrationTestSuite) TestLogin(c *C) {
+	user := Document{
+		"username": "letmelogin",
+		"password": "foobar",
+		"email":    "letmelogin@httpcallback.io",
+	}
+	data := user.ToJson()
+	buf := bytes.NewBuffer(data)
+
+	response, err := http.Post(s.ApiBaseUrl+"/users", "application/json", buf)
+	c.Assert(err, IsNil)
+	response.Body.Close()
+
+	loginRequest := Document{
+		"username": "letmelogin",
+		"password": "foobar",
+	}
+	data = loginRequest.ToJson()
+	buf = bytes.NewBuffer(data)
+
+	response, err = http.Post(s.ApiBaseUrl+"/login", "application/json", buf)
+	c.Assert(err, IsNil)
+
+	doc, err := GetBodyAsDocument(response)
+
+	c.Assert(err, IsNil)
+	c.Assert(doc["token"], NotNil)
+}
+
 func (s *ApiIntegrationTestSuite) TestPostNewUserGetsActuallyAdded(c *C) {
 	user := Document{
 		"username": "pjvds",

@@ -51,7 +51,9 @@ func (ctr *UserController) Login(request *http.Request, args *LoginRequest) Acti
 	if user == nil {
 		return NotFoundResult("no user found by provided credentials")
 	}
-	return JsonResult(user)
+	return JsonResult(JsonDocument{
+		"token": user.AuthToken.String(),
+	})
 }
 
 func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) ActionResult {
