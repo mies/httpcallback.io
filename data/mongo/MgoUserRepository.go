@@ -29,8 +29,21 @@ func (r *MgoUserRepository) Get(id model.ObjectId) (*model.User, error) {
 
 	return &result, err
 }
+func (r *MgoUserRepository) GetByUsernameAndPasswordHash(username string, passwordHash string) (*model.User, error) {
+	query := r.database.C("Users").Find(bson.M{"username": username, "passwordhash": passwordHash})
+	var result *model.User
+	if err := query.One(result); err != nil {
+		return nil, err
+	}
 
-func (r *MgoUserRepository) GetByAuth(username string, authToken model.AuthenticationToken) (*model.UserAuthInfo, error) {
+	if result == nil {
+		return nil, nil
+	}
+
+	return result, nil
+}
+
+func (r *MgoUserRepository) GetByUsernameAndAuthToken(username string, authToken model.AuthenticationToken) (*model.UserAuthInfo, error) {
 	query := r.database.C("Users").Find(bson.M{"username": username, "authtoken": authToken}).Select(bson.M{"_id": 1, "username": 1})
 	var result bson.M
 	if err := query.One(&result); err != nil {

@@ -33,6 +33,27 @@ type AddUserResponse struct {
 	AuthToken model.AuthenticationToken `json:"authToken"`
 }
 
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
+func (ctr *UserController) Login(request *http.Request, args *LoginRequest) ActionResult {
+	hash := security.HashPassword(args.Username, args.Password)
+	user, err := ctr.users.GetByUsernameAndPasswordHash(args.Username, hash)
+	if err != nil {
+		return ErrorResult(err)
+	}
+	if user == nil {
+		return NotFoundResult("no user found by provided credentials")
+	}
+	return JsonResult(user)
+}
+
 func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) ActionResult {
 	log.Info("Handling AddUser request for new user with username: %v", args.Username)
 
@@ -42,7 +63,8 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 		Id:           model.NewObjectId(),
 		CreatedAt:    creationDate,
 		Username:     args.Username,
-		PasswordHash: security.HashPassword(args.Username, args.Password, creationDate),
+		PasswordHash: security.HashPassword(args.Username, args.Password),
+		Email:        args.Email,
 		AuthToken:    security.NewAuthToken(),
 	}
 

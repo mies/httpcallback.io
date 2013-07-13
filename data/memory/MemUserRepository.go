@@ -40,7 +40,14 @@ func (r *MemoryUserRepository) Get(id model.ObjectId) (*model.User, error) {
 	})
 }
 
-func (r *MemoryUserRepository) GetByAuth(username string, authToken model.AuthenticationToken) (*model.UserAuthInfo, error) {
+func (r *MemoryUserRepository) GetByUsernameAndPasswordHash(username string, passwordHash string) (*model.User, error) {
+	return r.get(func(user *model.User) bool {
+		return user.Username == username &&
+			user.PasswordHash == passwordHash
+	})
+}
+
+func (r *MemoryUserRepository) GetByUsernameAndAuthToken(username string, authToken model.AuthenticationToken) (*model.UserAuthInfo, error) {
 	user, err := r.get(func(user *model.User) bool {
 		return user.Username == username && user.AuthToken == authToken
 	})

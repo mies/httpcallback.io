@@ -11,6 +11,7 @@ type UserAuthInfo struct {
 
 type User struct {
 	Id           ObjectId            `bson:"_id,omitempty" json:"id"`
+	Email        string              `json:"email"`
 	CreatedAt    time.Time           `json:"createAt"`
 	Username     string              `json:"username"`
 	PasswordHash string              `json:"passwordHash"`

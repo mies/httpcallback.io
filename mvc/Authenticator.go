@@ -16,7 +16,7 @@ func NewAuthenticator(userRepository data.UserRepository) *Authenticator {
 }
 
 func (a Authenticator) Authenticate(username string, token string) (*model.UserAuthInfo, error) {
-	return a.userRepository.GetByAuth(username, model.AuthenticationToken(token))
+	return a.userRepository.GetByUsernameAndAuthToken(username, model.AuthenticationToken(token))
 }
 
 func (a Authenticator) Wrap(handler AuthenticatedRequestHandler) *AuthenticationHandler {
