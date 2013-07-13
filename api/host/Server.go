@@ -89,6 +89,11 @@ func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 		"POST": s.authenticator.Wrap(addCallbackHandler.ServeAuthHTTP),
 	})
 
+	loginHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.userCtlr.Login)
+	router.Handle("/login", handlers.MethodHandler{
+		"POST": loginHandler,
+	})
+
 	router.Handle("/user/{id}", handlers.MethodHandler{
 		"GET": mvc.HandlerFuncToHandler(func(response http.ResponseWriter, req *http.Request) {
 			var result mvc.ActionResult
