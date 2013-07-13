@@ -118,9 +118,7 @@ func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 
 	addUserHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.userCtlr.AddUser)
 	router.Handle("/users", handlers.MethodHandler{
-		"POST": mvc.HandlerFuncToHandler(func(response http.ResponseWriter, req *http.Request) {
-			addUserHandler.ServeHTTP(response, req)
-		}),
+		"POST": addUserHandler,
 	})
 
 	return router
