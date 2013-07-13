@@ -34,7 +34,6 @@ func (ctr *CallbackController) NewCallback(r *AuthenticatedRequest, args *NewCal
 // List all the callbacks from the authenticated user.
 func (ctr *CallbackController) ListCallbacks(r *AuthenticatedRequest) ActionResult {
 	callbacks, err := ctr.callbacks.List(r.UserId)
-
 	if err != nil {
 		Log.Error("Error while getting callback for user '%v': %v", r.UserId, err.Error())
 		return ErrorResult(err)

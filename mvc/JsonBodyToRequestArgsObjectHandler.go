@@ -4,14 +4,27 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 	"reflect"
 )
 
+type ParameterProvider interface {
+	GetParamters(request *http.Request) map[string]string
+}
+
+type GorillaMuxVarsParameterProvider struct {
+}
+
+func (provider *GorillaMuxVarsParameterProvider) GetParamters(request *http.Request) map[string]string {
+	return mux.Vars(request)
+}
+
 type JsonBodyToRequestArgsObjectHandler struct {
-	handlerType    reflect.Type
-	argsObjectType reflect.Type
-	handlerValue   reflect.Value
+	handlerType       reflect.Type
+	argsObjectType    reflect.Type
+	handlerValue      reflect.Value
+	parameterProvider *ParameterProvider
 }
 
 func validateHandler(handler interface{}) (bool, error) {
