@@ -6,10 +6,10 @@ build:
         code: ls -laxo $WERCKER_ROOT_DIR
     - pjvds/setup-go-workspace
     - script:
-        name: Copy git
+        name: Sync root and source
         code: |-
+          rsync -avzv "$WERCKER_ROOT_DIR/" "$WERCKER_SOURCE_DIR/"
           ls -laxo $WERCKER_SOURCE_DIR
-          cp -R $WERCKER_ROOT_DIR/.git $WERCKER_SOURCE_DIR/
     - script:
         name: Populate cache
         code: |-
