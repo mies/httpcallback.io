@@ -27,9 +27,11 @@ build:
     - script:
         name: Coveralls.io
         code: |-
+            # The COVERALLS_TOKEN is set in the project at
+            # wercker as project environment variable.
             go get github.com/axw/gocov/gocov
             go get github.com/mattn/goveralls
-            goveralls -service="wercker.com" $COVERALLS_TOKEN
+            goveralls -service='wercker.com' $COVERALLS_TOKEN
 
     - create-file:
         name: Generate config.toml
