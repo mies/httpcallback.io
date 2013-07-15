@@ -37,6 +37,7 @@ build:
         name: Generate config.toml
         filename: $WERCKER_ROOT/config.toml
         overwrite: true
+        hide-from-log: true
         content: |-
             [Host]
             Hostname = "httpcallback-io.herokuapp.com"
