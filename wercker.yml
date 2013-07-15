@@ -29,7 +29,7 @@ build:
         code: |-
             go get github.com/axw/gocov/gocov
             go get github.com/mattn/goveralls
-            goveralls $COVERALLS_TOKEN ./...
+            goveralls -service="wercker.com" -package="./..." $COVERALLS_TOKEN
 
     - create-file:
         name: Generate config.toml
