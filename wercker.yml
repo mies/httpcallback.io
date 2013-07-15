@@ -38,11 +38,13 @@ build:
         content: |-
             [Host]
             Hostname = "httpcallback-io.herokuapp.com"
+
             [Github]
             ClientId = "$GITHUB_CLIENT_ID"
             ClientSecret = "$GITHUB_CLIENT_SECRET"
             AuthorizeUrl = "https://github.com/login/oauth/authorize"
             AccessTokenUrl = "https://github.com/login/oauth/access_token"
+
             [Mongo]
             UseMongo = true
             ServerUrl = "$MONGO_SERVER_URL"
