@@ -6,9 +6,10 @@ build:
     - script:
         name: Populate cache
         code: |-
-            # BEFORE YOU COPY AND USE THIS STEP IN YOUR OWN BUILD PIPELINE
-            # MAKE SURE YOU SET $WERCKER_SOURCE_DIR TO THE PACKAGE DIRECTORY
-            # OR YOUR PROJECT, LIKE: $GOPATH/github.com/pjvds/httpcallback.io
+            # WARNING: If you do not use the pjvds/golang box:
+            # before you copy and use this step in your own build pipeline
+            # make sure you set $WERCKER_SOURCE_DIR to the package directory
+            # or your project, like: $GOPATH/github.com/pjvds/httpcallback.io
             if test -d "$WERCKER_CACHE_DIR/go-pkg-cache"; then rsync -avzv --exclude "$WERCKER_SOURCE_DIR" "$WERCKER_CACHE_DIR/go-pkg-cache/" "$GOPATH/" ; fi
 
     - script:
@@ -56,7 +57,8 @@ build:
     - script:
         name: Store cache
         code: |-
-            # BEFORE YOU COPY AND USE THIS STEP IN YOUR OWN BUILD PIPELINE
-            # MAKE SURE YOU SET $WERCKER_SOURCE_DIR TO THE PACKAGE DIRECTORY
-            # OR YOUR PROJECT, LIKE: $GOPATH/github.com/pjvds/httpcallback.io
+            # WARNING: If you do not use the pjvds/golang box:
+            # before you copy and use this step in your own build pipeline
+            # make sure you set $WERCKER_SOURCE_DIR to the package directory
+            # or your project, like: $GOPATH/github.com/pjvds/httpcallback.io
             rsync -avzv --exclude "$WERCKER_SOURCE_DIR" "$GOPATH/" "$WERCKER_CACHE_DIR/go-pkg-cache/"

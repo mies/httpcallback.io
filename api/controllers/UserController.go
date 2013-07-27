@@ -61,16 +61,15 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 
 	creationDate := time.Now()
 
-	newUser := model.User{
-		Id:           model.NewObjectId(),
-		CreatedAt:    creationDate,
-		Username:     args.Username,
-		PasswordHash: security.HashPassword(args.Username, args.Password),
-		Email:        args.Email,
-		AuthToken:    security.NewAuthToken(),
-	}
+	newUser := model.NewUser(
+		model.NewObjectId(),
+		creationDate,
+		args.Username,
+		security.HashPassword(args.Username, args.Password),
+		args.Email)
+	newUser.AddAuthToken(security.NewAuthToken())
 
-	if err := ctr.users.Add(&newUser); err != nil {
+	if err := ctr.users.Add(newUser); err != nil {
 		Log.Error("Unable to add new user. Error from repository:,", err)
 		return ErrorResult(err)
 	}
