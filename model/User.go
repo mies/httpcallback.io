@@ -23,9 +23,8 @@ type UserAuthInfo struct {
 }
 
 type User struct {
-	sourcer sourcing.EventSource
+	sourcing.EventSource
 
-	Id           ObjectId            `bson:"_id,omitempty" json:"id"`
 	Email        string              `json:"email"`
 	CreatedAt    time.Time           `json:"createAt"`
 	Username     string              `json:"username"`
@@ -35,9 +34,9 @@ type User struct {
 
 func NewUser(id ObjectId, createdAt time.Time, username, passwordHash, email string) *User {
 	user := new(User)
-	user.sourcer = sourcing.AttachNew(user)
+	user.EventSource = sourcing.AttachNew(user)
 
-	user.sourcer.Apply(UserCreated{
+	user.Apply(UserCreated{
 		Id:           id,
 		Email:        email,
 		Username:     username,
@@ -49,13 +48,12 @@ func NewUser(id ObjectId, createdAt time.Time, username, passwordHash, email str
 }
 
 func (u *User) AddAuthToken(token AuthenticationToken) {
-	u.sourcer.Apply(UserAuthTokenAdded{
+	u.Apply(UserAuthTokenAdded{
 		AuthToken: token,
 	})
 }
 
 func (u *User) HandleUserCreated(e UserCreated) {
-	u.Id = e.Id
 	u.Email = e.Email
 	u.CreatedAt = e.CreatedAt
 	u.Username = e.Username

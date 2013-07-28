@@ -1,35 +1,38 @@
 package model
 
 import (
-	"encoding/hex"
-	"errors"
-	"fmt"
-	"labix.org/v2/mgo/bson"
+	"github.com/pjvds/go-cqrs/sourcing"
 )
 
-type ObjectId string
+type ObjectId sourcing.EventSourceId
 
 func NewObjectId() ObjectId {
-	id := bson.NewObjectId()
-	s := id.Hex()
-	return ObjectId(s)
+	return ObjectId(sourcing.NewEventSourceId())
 }
 
-func (id ObjectId) String() string {
-	return string(id)
+func (id *ObjectId) String() string {
+	value := sourcing.EventSourceId(*id)
+	return value.String()
 }
 
 func ParseObjectId(value string) (ObjectId, error) {
-	var id ObjectId
-	if len(value) != 24 {
-		return id, errors.New(fmt.Sprintf("Invalid object id. String lenght is %v while it must be %v", len(value), 24))
-	}
+	id, err := sourcing.ParseEventSourceId(value)
+	return ObjectId(id), err
+}
 
-	_, err := hex.DecodeString(value)
+func (id ObjectId) MarshalJSON() ([]byte, error) {
+	value := sourcing.EventSourceId(id)
+	return value.MarshalJSON()
+}
+
+func (id *ObjectId) UnmarshalJSON(b []byte) error {
+	value := sourcing.EventSourceId(*id)
+	err := value.UnmarshalJSON(b)
 	if err != nil {
-		return id, errors.New(fmt.Sprintf("Invalid object id. Not a valid hexidecimal string: %v", err.Error()))
+		return err
 	}
 
-	id = ObjectId(bson.ObjectIdHex(value).Hex())
-	return id, nil
+	objectId := ObjectId(value)
+	id = &objectId
+	return nil
 }

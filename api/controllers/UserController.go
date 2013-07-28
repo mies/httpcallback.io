@@ -42,19 +42,19 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-func (ctr *UserController) Login(request *http.Request, args *LoginRequest) ActionResult {
-	hash := security.HashPassword(args.Username, args.Password)
-	user, err := ctr.users.GetByUsernameAndPasswordHash(args.Username, hash)
-	if err != nil {
-		return ErrorResult(err)
-	}
-	if user == nil {
-		return NotFoundResult("no user found by provided credentials")
-	}
-	return JsonResult(JsonDocument{
-		"token": user.AuthToken.String(),
-	})
-}
+// func (ctr *UserController) Login(request *http.Request, args *LoginRequest) ActionResult {
+// 	hash := security.HashPassword(args.Username, args.Password)
+// 	user, err := ctr.users.GetByUsernameAndPasswordHash(args.Username, hash)
+// 	if err != nil {
+// 		return ErrorResult(err)
+// 	}
+// 	if user == nil {
+// 		return NotFoundResult("no user found by provided credentials")
+// 	}
+// 	return JsonResult(JsonDocument{
+// 		"token": user.AuthToken.String(),
+// 	})
+// }
 
 func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) ActionResult {
 	log.Info("Handling AddUser request for new user with username: %v", args.Username)
@@ -75,7 +75,7 @@ func (ctr *UserController) AddUser(request *http.Request, args *AddUserRequest) 
 	}
 
 	return JsonResult(AddUserResponse{
-		Id:        newUser.Id,
+		Id:        model.ObjectId(newUser.Id()),
 		Username:  newUser.Username,
 		AuthToken: newUser.AuthToken,
 	})
@@ -101,7 +101,7 @@ func (ctr *UserController) GetUser(request *http.Request, args *GetUserRequest) 
 		Id        model.ObjectId `bson:"_id,omitempty" json:"id"`
 		Username  string         `json:"username"`
 		CreatedAt time.Time      `json:"createdAt"`
-	}{Id: user.Id,
+	}{Id: model.ObjectId(user.Id()),
 		Username:  user.Username,
 		CreatedAt: user.CreatedAt})
 }

@@ -7,8 +7,7 @@ import (
 	"github.com/pjvds/httpcallback.io/api/controllers"
 	"github.com/pjvds/httpcallback.io/api/messages"
 	"github.com/pjvds/httpcallback.io/data"
-	"github.com/pjvds/httpcallback.io/data/memory"
-	"github.com/pjvds/httpcallback.io/data/mongo"
+	"github.com/pjvds/httpcallback.io/data/gocqrs"
 	"github.com/pjvds/httpcallback.io/mvc"
 	"net/http"
 )
@@ -18,10 +17,9 @@ type HttpCallbackApiServer struct {
 
 	authenticator *mvc.Authenticator
 
-	homeCtlr     *controllers.HomeController
-	callbackCtlr *controllers.CallbackController
-	userCtlr     *controllers.UserController
-	githubCtlr   *controllers.GithubOAuthController
+	homeCtlr   *controllers.HomeController
+	userCtlr   *controllers.UserController
+	githubCtlr *controllers.GithubOAuthController
 }
 
 func NewServer(config *Configuration) *HttpCallbackApiServer {
@@ -34,7 +32,6 @@ func NewServer(config *Configuration) *HttpCallbackApiServer {
 
 	server := &HttpCallbackApiServer{
 		authenticator: mvc.NewAuthenticator(userRepository),
-		callbackCtlr:  controllers.NewCallbackController(repositoryFactory.CreateCallbackRepository()),
 		userCtlr:      controllers.NewUserController(userRepository),
 		homeCtlr:      controllers.NewHomeController(),
 		githubCtlr: controllers.NewGithubOAuthController(config.Github.ClientId, config.Github.ClientSecret,
@@ -46,21 +43,7 @@ func NewServer(config *Configuration) *HttpCallbackApiServer {
 }
 
 func createRepositoryFactory(config *Configuration) (data.RepositoryFactory, error) {
-	if config.Mongo.UseMongo {
-		Log.Debug("Running with mongo data store")
-		Log.Debug("Connecting to mongo database %v", config.Mongo.DatabaseName)
-		mongoSession, err := mongo.Open(config.Mongo.ServerUrl, config.Mongo.DatabaseName)
-		if err != nil {
-			Log.Error("Unable to connect to mongo:", err)
-			return nil, err
-		}
-		Log.Debug("Connected succesfully")
-		return mongo.NewMgoRepositoryFactory(mongoSession), nil
-
-	} else {
-		Log.Debug("Runnig with inmemory data store")
-		return memory.NewMemRepositoryFactory(), nil
-	}
+	return gocqrs.NewRepositoryFactory(), nil
 }
 
 func (s *HttpCallbackApiServer) createRouter() *mux.Router {
@@ -81,18 +64,18 @@ func (s *HttpCallbackApiServer) createRouter() *mux.Router {
 		"GET": HttpReponseWrapper(s.githubCtlr.GithubCallback),
 	})
 
-	addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.callbackCtlr.NewCallback)
-	router.Handle("/user/callbacks", handlers.MethodHandler{
-		"GET": s.authenticator.Wrap(func(response http.ResponseWriter, request *mvc.AuthenticatedRequest) {
-			s.callbackCtlr.ListCallbacks(request).WriteResponse(response)
-		}),
-		"POST": s.authenticator.Wrap(addCallbackHandler.ServeAuthHTTP),
-	})
+	// addCallbackHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.callbackCtlr.NewCallback)
+	// router.Handle("/user/callbacks", handlers.MethodHandler{
+	// 	// "GET": s.authenticator.Wrap(func(response http.ResponseWriter, request *mvc.AuthenticatedRequest) {
+	// 	// 	s.callbackCtlr.ListCallbacks(request).WriteResponse(response)
+	// 	// }),
+	// 	"POST": s.authenticator.Wrap(addCallbackHandler.ServeAuthHTTP),
+	// })
 
-	loginHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.userCtlr.Login)
-	router.Handle("/login", handlers.MethodHandler{
-		"POST": loginHandler,
-	})
+	// loginHandler := mvc.NewJsonBodyRequestArgsObjectHandler(s.userCtlr.Login)
+	// router.Handle("/login", handlers.MethodHandler{
+	// 	"POST": loginHandler,
+	// })
 
 	router.Handle("/user/{id}", handlers.MethodHandler{
 		"GET": mvc.HandlerFuncToHandler(func(response http.ResponseWriter, req *http.Request) {

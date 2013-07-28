@@ -76,7 +76,7 @@ func (s *ApiIntegrationTestSuite) TestPostNewUserResponse(c *C) {
 
 	c.Assert(err, IsNil)
 	c.Assert(doc["id"], NotNil)
-	c.Assert(len(doc["id"].(string)), Equals, 24)
+	c.Assert(len(doc["id"].(string)), Equals, 36)
 	c.Assert(doc["username"], Equals, user["username"])
 	c.Assert(doc["authToken"], NotNil)
 }
